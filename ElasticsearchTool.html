@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>ElasticsearchTool</title>
+
+    <!-- Bootstrap -->
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+        body {
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+        .toolFrame {
+            border: 1px #efefef solid;
+            padding: 5px;
+        }
+        .execResult {
+            margin-top: 15px;
+            border: 1px #efefef solid;
+            padding: 5px;
+            word-break: break-all;
+            word-wrap: break-word;
+            overflow-y: auto;
+
+            user-select: text;
+            -moz-user-select: text;
+            -webkit-user-select: text;
+            -ms-user-select: text;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+
+        <h1>Elasticsearch实用工具集</h1>
+
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#typeExport" role="tab" data-toggle="tab">type导出</a></li>
+            <li role="presentation"><a href="#typeImport" role="tab" data-toggle="tab">type导入</a></li>
+            <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">bulk删除</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="typeExport">
+                <div class="toolWrapper row">
+                    <div id="exportTool" class="toolFrame col-xs-12 col-md-6">
+                        <h2>Type Export</h2>
+                        <form id="exportForm" role="form">
+                            <div class="form-group">
+                                <label for="exportIndex">index</label>
+                                <input type="text" class="form-control" id="exportIndex" placeholder="index">
+                            </div>
+                            <div class="form-group">
+                                <label for="exportType">type</label>
+                                <input type="text" class="form-control" id="exportType" placeholder="type">
+                            </div>
+                            <button type="submit" class="btn btn-default">Submit</button>
+                        </form>
+                        <p id="exportResult" class="execResult"></p>
+                    </div>
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h3>usage:</h3>
+                        <p>填入index和type, 返回该type全部数据查询结果。</p>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="typeImport">
+                <div class="toolWrapper row">
+                    <div id="importTool" class="toolFrame col-xs-12 col-md-6">
+                        <h2>Type Import</h2>
+                        <form id="importForm" role="form">
+                            <div class="form-group">
+                                <label for="importData">data</label>
+                                <textarea id="importData" class="form-control" rows="4" placeholder="data"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-default">Submit</button>
+                        </form>
+                        <p id="importResult" class="execResult"></p>
+                    </div>
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h3>usage:</h3>
+                        <p>拷贝head插件或本工具集导出工具查询出的json结果, 修改数据(如果需要), 执行批量插入或更新。</p>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="bulkDelete">
+                <div class="toolWrapper row">
+                    <div id="bulkDeleteTool" class="toolFrame col-xs-12 col-md-6">
+                        <h2>Bulk Delete</h2>
+                        <form id="bulkDeleteForm" role="form">
+                            <div class="form-group">
+                                <label for="bulkDeleteIndex">index</label>
+                                <input type="text" class="form-control" id="bulkDeleteIndex" placeholder="index">
+                            </div>
+                            <div class="form-group">
+                                <label for="bulkDeleteType">type</label>
+                                <input type="text" class="form-control" id="bulkDeleteType" placeholder="type">
+                            </div>
+                            <div class="form-group">
+                                <label for="bulkDeleteRouting">routing</label>
+                                <input type="text" class="form-control" id="bulkDeleteRouting" placeholder="routing">
+                            </div>
+                            <div class="form-group">
+                                <label for="bulkDeleteData">data</label>
+                                <textarea id="bulkDeleteData" class="form-control" rows="4" placeholder="data"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-default">Submit</button>
+                        </form>
+                        <p id="bulkDeleteResult" class="execResult"></p>
+                    </div>
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h3>usage:</h3>
+                        <p>输入要删除的数据id, 多个id以逗号分隔。<br>
+                           or 拷贝head插件或本工具集导出工具查询出的json结果, 修改数据(如果需要), 执行批量删除。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        console.warn("usage:");
+        console.warn("1.copy this file to /usr/local/elasticsearch-2.2.0/plugins/head/_site/");
+        console.warn("2.visit [host]:9200/_plugin/head/ElasticsearchTool.html");
+
+        var host = window.location.protocol + "//" + window.location.host;
+
+        $(function () {
+            var th = $(window).height() - 69 - 41 - 5;
+            $(".toolWrapper").height(Math.max(th, 755));
+            $(".toolFrame").height($(".toolWrapper").height() - 12);
+
+
+            // type export
+            $("#exportResult").height($(".toolFrame").height() - 356 + 75);
+            function msgExportResult(msg) {
+                $("#exportResult").text(msg);
+            }
+            $("#exportForm").on("submit", function(evt) {
+                evt.preventDefault();
+                msgExportResult("...");
+                var exportIndex = $("#exportIndex").val().trim();
+                var exportType = $("#exportType").val().trim();
+                if (!exportIndex) {
+                    msgExportResult("参数为空");
+                    return false;
+                }
+                var exportUrl = host + "/" + exportIndex;
+                if (exportType) exportUrl += "/" + exportType;
+                exportUrl += "/_search";
+                $.ajax({
+                    type: "POST",
+                    url: exportUrl,
+                    data: '{"fields":["_parent","_source"],"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
+                        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
+                    success: function(result){
+                        msgExportResult(JSON.stringify(result));
+                    },
+                    error: function(result) {
+                        msgExportResult(JSON.stringify(result));
+                    }
+                });
+                return false;
+            });
+            $("#exportIndex").on("keyup", function() { msgExportResult(""); });
+            $("#exportType").on("keyup", function() { msgExportResult(""); });
+
+            // type import
+            $("#importResult").height($(".toolFrame").height() - 356 + 75);
+            function msgImportResult(msg) {
+                $("#importResult").text(msg);
+            }
+            $("#importForm").on("submit", function(evt) {
+                evt.preventDefault();
+                msgImportResult("...");
+                var importData = $("#importData").val().trim();
+                if (!importData) {
+                    msgImportResult("参数为空");
+                    return false;
+                }
+
+                var importDataObj = JSON.parse(importData);
+                var dataBody;
+                if (typeof importDataObj.hits === "object" && !(importDataObj.hits instanceof Array)
+                        && typeof importDataObj.hits.hits === "object" && importDataObj.hits.hits instanceof Array) {
+                    dataBody = importDataObj.hits.hits;
+                } else if(typeof importDataObj.hits === "object" && importDataObj.hits instanceof Array) {
+                    dataBody = importDataObj.hits;
+                }
+                var bulkBody = "";
+                var i, dataItem, dataItemId, dataItemIndex, dataItemType, dataItemRouting, dataItemSource;
+                for (i = 0; i < dataBody.length; i++) {
+                    dataItem = dataBody[i];
+                    dataItemId = dataItem._id;
+                    dataItemIndex = dataItem._index;
+                    dataItemType = dataItem._type;
+                    dataItemRouting = dataItem._routing;
+                    dataItemSource = dataItem._source;
+
+                    if (dataItemRouting) {
+                        bulkBody += '{"index":{"_index":"'+ dataItemIndex + '","_type":"' + dataItemType + '","_id":"'
+                                + dataItemId + '","_routing":"' + dataItemRouting + '"}}\n';
+                    } else {
+                        bulkBody += '{"index":{"_index":"'+ dataItemIndex + '","_type":"' + dataItemType + '","_id":"'
+                                + dataItemId + '"}}\n';
+                    }
+                    bulkBody += JSON.stringify(dataItemSource) + '\n';
+                }
+
+                var importUrl = host + "/_bulk";
+                $.ajax({
+                    type: "POST",
+                    url: importUrl,
+                    data: bulkBody,
+                    success: function(result){
+                        msgImportResult(JSON.stringify(result));
+                    },
+                    error: function(result) {
+                        msgImportResult(JSON.stringify(result));
+                    }
+                });
+                return false;
+            });
+            $("#importData").on("keyup", function() { msgImportResult(""); });
+
+            // bulk delete
+            $("#bulkDeleteResult").height($(".toolFrame").height() - 356 + 75 - 74 * 3);
+            function msgBulkDeleteResult(msg) {
+                $("#bulkDeleteResult").text(msg);
+            }
+            $("#bulkDeleteForm").on("submit", function(evt) {
+                evt.preventDefault();
+                msgBulkDeleteResult("...");
+
+                var bulkDeleteIndex = $("#bulkDeleteIndex").val().trim();
+                var bulkDeleteType = $("#bulkDeleteType").val().trim();
+                var bulkDeleteRouting = $("#bulkDeleteRouting").val().trim();
+                var bulkDelete = $("#bulkDeleteData").val();
+                if (!bulkDeleteIndex || !bulkDeleteType || !bulkDelete) {
+                    msgBulkDeleteResult("参数为空");
+                    return false;
+                }
+
+                if (bulkDelete.lastIndexOf(',') === bulkDelete.length - 1) {
+                    bulkDelete = bulkDelete.slice(0, -1);
+                }
+
+                var dataBody;
+                try {
+                    var bulkDeleteObj = JSON.parse(bulkDelete);
+                    console.log(bulkDeleteObj);
+                    if (typeof bulkDeleteObj.hits === "object" && !(bulkDeleteObj.hits instanceof Array)
+                            && typeof bulkDeleteObj.hits.hits === "object" && bulkDeleteObj.hits.hits instanceof Array) {
+                        dataBody = bulkDeleteObj.hits.hits;
+                    } else if(typeof bulkDeleteObj.hits === "object" && bulkDeleteObj.hits instanceof Array) {
+                        dataBody = bulkDeleteObj.hits;
+                    }
+                    console.log(dataBody);
+                } catch (err) {console.error(err.message, err.stack);}
+
+                if (dataBody) {
+                    var i;
+                    var ids = [];
+                    for (i = 0; i < dataBody.length; i++) {
+                        ids.push(dataBody[i]._id);
+                    }
+                    bulkDelete = ids.join(',');
+
+                }
+                console.log(bulkDelete);
+
+                var bulkDeleteArray = bulkDelete.split(",");
+                var bulkBody = "";
+                for (var i = 0; i < bulkDeleteArray.length; i++) {
+                    if (bulkDeleteRouting) {
+                        bulkBody += '{"delete":{"_id":"' + bulkDeleteArray[i].trim() + '","_routing":"' + bulkDeleteRouting + '"}}\n';
+                    } else {
+                        bulkBody += '{"delete":{"_id":"' + bulkDeleteArray[i].trim() + '"}}\n';
+                    }
+                }
+
+                var bulkDeleteUrl = host + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_bulk";
+                $.ajax({
+                    type: "POST",
+                    url: bulkDeleteUrl,
+                    data: bulkBody,
+                    success: function(result){
+                        msgBulkDeleteResult(JSON.stringify(result));
+                    },
+                    error: function(result) {
+                        msgBulkDeleteResult(JSON.stringify(result));
+                    }
+                });
+                return false;
+            });
+            $("#bulkDeleteIndex").on("keyup", function() { msgBulkDeleteResult(""); });
+            $("#bulkDeleteType").on("keyup", function() { msgBulkDeleteResult(""); });
+            $("#bulkDeleteRouting").on("keyup", function() { msgBulkDeleteResult(""); });
+            $("#bulkDeleteData").on("keyup", function() { msgBulkDeleteResult(""); });
+            $("#bulkDeleteData").on("blur", function() {
+                var d = $("#bulkDeleteData").val().trim();
+                if (d.length > 0 && d.lastIndexOf(',') !== d.length - 1) {
+                    $("#bulkDeleteData").val(d + ',');
+                }
+            });
+        });
+    </script>
+  </body>
+</html>

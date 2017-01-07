@@ -20,13 +20,13 @@ $(function () {
     $("#exportForm").on("submit", function (evt) {
         evt.preventDefault();
         msgExportResult("...");
-        var exportIndex = $("#exportIndex").val().trim();
+        var _index = $("#exportIndex").val().trim();
         var exportType = $("#exportType").val().trim();
-        if (!exportIndex) {
+        if (!_index) {
             msgExportResult("参数为空");
             return false;
         }
-        var exportUrl = host + "/" + exportIndex;
+        var exportUrl = host + "/" + _index;
         if (exportType) exportUrl += "/" + exportType;
         exportUrl += "/_search";
         $.ajax({
@@ -35,7 +35,7 @@ $(function () {
             data: '{"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
             '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
             success: function (result) {
-                var json = format(JSON.stringify(result),false);
+                var json = format(JSON.stringify(result), false);
                 msgExportResult(json);
             },
             error: function (result) {
@@ -49,7 +49,7 @@ $(function () {
     /**
      * 索引改变事件
      */
-    $("#exportIndex").on("change", function () {
+    $("._index").on("change", function () {
         var index = $(this).val();
         console.log(index);
         setTypes(index);
@@ -58,10 +58,24 @@ $(function () {
 
 
     //导出文件
-    $(".exportJson").on("click",function () {
-        var content =$("#exportResult").text();
-        var fileName = $("#exportIndex").val()+"-"+$("#exportType").val()+".json";
-        downloadFile(fileName,content);
+    $(".exportJson").on("click", function () {
+        var content = $("#exportResult").text();
+        if (!content.trim()) {
+            alert('内容为空，请点击Submit!');
+            return;
+        }
+        var fileName = $("#exportIndex").val() + "-" + $("#exportType").val() + ".json";
+        downloadFile(fileName, content);
+    });
+
+
+    /**
+     * 从文件中导入数据
+     */
+    $(".import-btn").on("click", function () {
+        alert('待后续完成...');
+
+
     });
 
 
@@ -111,7 +125,7 @@ $(function () {
             url: importUrl,
             data: bulkBody,
             success: function (result) {
-                msgImportResult(JSON.stringify(result));
+                msgImportResult(format(JSON.stringify(result)), false);
             },
             error: function (result) {
                 msgImportResult(JSON.stringify(result));
@@ -131,67 +145,40 @@ $(function () {
         var bulkDeleteIndex = $("#bulkDeleteIndex").val().trim();
         var bulkDeleteType = $("#bulkDeleteType").val().trim();
         var bulkDeleteRouting = $("#bulkDeleteRouting").val().trim();
-        var bulkDelete = $("#bulkDeleteData").val();
-        if (!bulkDeleteIndex || !bulkDeleteType || !bulkDelete) {
+        var bulkDeleteData = $("#bulkDeleteData").val();
+        if (!bulkDeleteIndex || !bulkDeleteType) {
             msgBulkDeleteResult("参数为空");
             return false;
         }
-
-        if (bulkDelete.lastIndexOf(',') === bulkDelete.length - 1) {
-            bulkDelete = bulkDelete.slice(0, -1);
-        }
-
-        var dataBody;
-        try {
-            var bulkDeleteObj = JSON.parse(bulkDelete);
-            console.log(bulkDeleteObj);
-            if (typeof bulkDeleteObj.hits === "object" && !(bulkDeleteObj.hits instanceof Array)
-                && typeof bulkDeleteObj.hits.hits === "object" && bulkDeleteObj.hits.hits instanceof Array) {
-                dataBody = bulkDeleteObj.hits.hits;
-            } else if (typeof bulkDeleteObj.hits === "object" && bulkDeleteObj.hits instanceof Array) {
-                dataBody = bulkDeleteObj.hits;
-            }
-            console.log(dataBody);
-        } catch (err) {
-            console.error(err.message, err.stack);
-        }
-
-        if (dataBody) {
-            var i;
-            var ids = [];
-            for (i = 0; i < dataBody.length; i++) {
-                ids.push(dataBody[i]._id);
-            }
-            bulkDelete = ids.join(',');
-
-        }
-        console.log(bulkDelete);
-
-        var bulkDeleteArray = bulkDelete.split(",");
-        var bulkBody = "";
-        for (var i = 0; i < bulkDeleteArray.length; i++) {
-            if (bulkDeleteRouting) {
-                bulkBody += '{"delete":{"_id":"' + bulkDeleteArray[i].trim() + '","_routing":"' + bulkDeleteRouting + '"}}\n';
-            } else {
-                bulkBody += '{"delete":{"_id":"' + bulkDeleteArray[i].trim() + '"}}\n';
-            }
-        }
-
+        //如果id值为空，发起查询请求
         var bulkDeleteUrl = host + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_bulk";
-        $.ajax({
-            type: "POST",
-            url: bulkDeleteUrl,
-            data: bulkBody,
-            success: function (result) {
-                msgBulkDeleteResult(JSON.stringify(result));
-            },
-            error: function (result) {
-                msgBulkDeleteResult(JSON.stringify(result));
-            }
-        });
-        return false;
-    });
 
+        if (!bulkDeleteData) {
+            var index = $("#bulkDeleteIndex").val();
+            var type = $("#bulkDeleteType").val();
+            var searchUrl = host + "/" + index + "/" + type + "/_search";
+            $.ajax({
+                type: "POST",
+                url: searchUrl,
+                data: '{"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
+                '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
+                success: function (result) {
+                    bulkDelete(bulkDeleteUrl,result);
+                    return false;
+
+                },
+                error: function (result) {
+                    msgBulkDeleteResult(JSON.stringify(result));
+                    return false;
+                }
+            });
+        }else{
+            bulkDelete(bulkDeleteUrl,JSON.parse(bulkDeleteData));
+
+        }
+
+
+    });
 });
 
 
@@ -206,7 +193,7 @@ function msgImportResult(msg) {
 
 // bulk delete
 function msgBulkDeleteResult(msg) {
-    $("#bulkDeleteResult").text(msg);
+    $("#bulkDeleteResult").html(msg);
 }
 
 function setHeight() {
@@ -244,7 +231,7 @@ function setAllIndex() {
             }
             indices.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
         });
-        $("#exportIndex").append(indices.toString());
+        $("._index").append(indices.toString());
         if (firstIndex) {
             setTypes(firstIndex);
         }
@@ -261,12 +248,59 @@ function setTypes(index) {
     $.get(url, function (data) {
         var mapping = data[index].mappings;
         var types = Object.keys(mapping);
-        $("#exportType").html(" ");
+        $("._type").html(" ");
         types.forEach(function (type) {
-            $("#exportType").append("<option value='" + type + "'>" + type + "</option>");
+            $("._type").append("<option value='" + type + "'>" + type + "</option>");
         });
 
     });
+}
+
+/**
+ * 批量删除ES数据
+ * @param deleteUrl  删除url
+ * @param bulkDeleteObj  要删除的数据
+ * @param routing  路由
+ * @returns {boolean}
+ */
+function  bulkDelete(deleteUrl,bulkDeleteObj,routing) {
+
+    var dataBody='',bulkBody='';
+    try {
+        if (typeof bulkDeleteObj.hits === "object" && !(bulkDeleteObj.hits instanceof Array)
+            && typeof bulkDeleteObj.hits.hits === "object" && bulkDeleteObj.hits.hits instanceof Array) {
+            dataBody = bulkDeleteObj.hits.hits;
+        } else if (typeof bulkDeleteObj.hits === "object" && bulkDeleteObj.hits instanceof Array) {
+            dataBody = bulkDeleteObj.hits;
+        }
+        console.log(dataBody);
+    } catch (err) {
+        console.error(err.message, err.stack);
+    }
+    for (var i = 0; i < dataBody.length; i++) {
+        if (routing) {
+            bulkBody += '{"delete":{"_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
+        } else {
+            bulkBody += '{"delete":{"_id":"' + dataBody[i]._id.trim() + '"}}\n';
+        }
+    }
+    if(!dataBody||(dataBody.length<=0)){
+        msgBulkDeleteResult('该类型下没有数据');
+        return false;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: deleteUrl,
+        data: bulkBody,
+        success: function (result) {
+            msgBulkDeleteResult(format(JSON.stringify(result),false));
+        },
+        error: function (result) {
+            msgBulkDeleteResult(format(JSON.stringify(result),false));
+        }
+    });
+    return false;
 }
 
 /**

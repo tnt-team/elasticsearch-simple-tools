@@ -44,6 +44,9 @@
             -webkit-user-select: text;
             -ms-user-select: text;
         }
+        .import-btn{
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -66,14 +69,14 @@
                         <div class="form-group">
                             <label for="exportIndex">index</label>
                             <div class="form-group" >
-                                <select class="form-control" id="exportIndex">
+                                <select class="form-control _index" id="exportIndex">
                                 </select>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="exportType">type</label>
                             <div class="form-group" >
-                                <select class="form-control" id="exportType">
+                                <select class="form-control _type" id="exportType">
                                 </select>
                             </div>
                         </div>
@@ -90,7 +93,11 @@
         </div>
         <div role="tabpanel" class="tab-pane" id="typeImport">
             <div class="toolWrapper row">
+
                 <div id="importTool" class="toolFrame col-xs-12 col-md-6">
+                    <div >
+                        <button class="btn btn-default import-btn" disabled="disabled">导入数据</button>
+                    </div>
                     <h2>Type Import</h2>
                     <form id="importForm" role="form">
                         <div class="form-group">
@@ -99,7 +106,7 @@
                         </div>
                         <button type="submit" class="btn btn-default">Submit</button>
                     </form>
-                    <p id="importResult" class="execResult"></p>
+                    <textarea id="importResult" cols="70"  class="execResult"></textarea>
                 </div>
                 <div class="toolFrame col-xs-12 col-md-6">
                     <h3>usage:</h3>
@@ -114,11 +121,19 @@
                     <form id="bulkDeleteForm" role="form">
                         <div class="form-group">
                             <label for="bulkDeleteIndex">index</label>
-                            <input type="text" class="form-control" id="bulkDeleteIndex" placeholder="index">
+                            <div class="form-group" >
+                                <select class="form-control _index" id="bulkDeleteIndex">
+                                </select>
+                            </div>
+                            <!--<input type="text" class="form-control" id="bulkDeleteIndex" placeholder="index">-->
                         </div>
                         <div class="form-group">
                             <label for="bulkDeleteType">type</label>
-                            <input type="text" class="form-control" id="bulkDeleteType" placeholder="type">
+                            <!--<input type="text" class="form-control _type" id="bulkDeleteType" placeholder="type">-->
+                            <div class="form-group" >
+                                <select class="form-control _type" id="bulkDeleteType">
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="bulkDeleteRouting">routing</label>
@@ -126,11 +141,11 @@
                         </div>
                         <div class="form-group">
                             <label for="bulkDeleteData">data</label>
-                            <textarea id="bulkDeleteData" class="form-control" rows="4" placeholder="data"></textarea>
+                            <textarea id="bulkDeleteData" class="form-control" rows="4" placeholder="请填写要删除数据的id集合，以逗号分隔。为空表示全部删除"></textarea>
                         </div>
                         <button type="submit" class="btn btn-default">Submit</button>
                     </form>
-                    <p id="bulkDeleteResult" class="execResult"></p>
+                    <textarea id="bulkDeleteResult" cols="70" class="execResult"></textarea>
                 </div>
                 <div class="toolFrame col-xs-12 col-md-6">
                     <h3>usage:</h3>

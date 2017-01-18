@@ -2,7 +2,8 @@ console.log("usage:");
 console.log("1.copy this file to /usr/local/elasticsearch-2.2.0/plugins/head/_site/");
 console.log("2.visit [host]:9200/_plugin/head/ElasticsearchTool.html");
 
-var host = getHost();
+// var host = getHost();
+var host=getHost();
 
 $(function () {
 
@@ -12,7 +13,17 @@ $(function () {
     setHeight();
 
     setAllIndex();
-    // setTypes();
+
+
+    //
+    // $("#esConnect").on('click',function () {
+    //     var ip = $("#es-port").val();
+    //      if(!ip.trim()){
+    //          alert('所填地址为空，请重新填写！');
+    //          return false;
+    //      }
+    //     setAllIndex(host);
+    // });
 
     /**
      * 导出
@@ -177,8 +188,29 @@ $(function () {
 
         }
 
-
     });
+
+    $("#deleteFlyBtn").on('click',function () {
+        var text = $("#deleteFlyVersion").val();
+        var searchUrl = host + '/flyway/flywayInfo/_search';
+        $.ajax({
+            type: "POST",
+            url: searchUrl,
+            data: '{"query": {"term": {"fVersion": "'+text+'"}}}',
+            success: function (result) {
+               console.log(result);
+
+                return false;
+
+            },
+            error: function (result) {
+                msgBulkDeleteResult(JSON.stringify(result));
+                return false;
+            }
+        });
+    });
+
+
 });
 
 
@@ -218,25 +250,33 @@ function setAllIndex() {
     var url = host + "/_cat/indices";
     var indices = [];
     var firstIndex = '';
-    $.get(url, function (data) {
-        // data = JSON.parse(data);
-        console.log(data);
-        var indices_text = data.split("\n");
-        indices_text.pop();
 
-        indices_text.forEach(function (e) {
-            var arr = e.split(" ");
-            if (!firstIndex) {
-                firstIndex = arr[2];
+    $.ajax({
+        type: "GET",
+        url: url,
+        success: function (data) {
+            console.log(data);
+            var indices_text = data.split("\n");
+            indices_text.pop();
+
+            indices_text.forEach(function (e) {
+                var arr = e.split(" ");
+                if (!firstIndex) {
+                    firstIndex = arr[2];
+                }
+                indices.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
+            });
+            $("._index").append(indices.toString());
+            if (firstIndex) {
+                setTypes(firstIndex);
             }
-            indices.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
-        });
-        $("._index").append(indices.toString());
-        if (firstIndex) {
-            setTypes(firstIndex);
+        },
+        error: function (result) {
+            msgBulkDeleteResult(JSON.stringify(result));
+            return false;
         }
-
     });
+
 
 }
 
@@ -313,6 +353,7 @@ function getHost() {
     var hostname = window.location.hostname;
     return protocol + "//" + hostname + ":9200";
 
+    // return 'http://192.168.30.60:9200';
 
 }
 

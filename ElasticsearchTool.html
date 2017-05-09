@@ -76,6 +76,7 @@
             <li role="presentation"><a href="#typeUpgrade" role="tab" data-toggle="tab">数据迁移</a></li>
             <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">批量删除</a></li>
             <li role="presentation"><a href="#flywayDelete" role="tab" data-toggle="tab">flyway删除</a></li>
+            <li role="presentation"><a href="#routingDelete" role="tab" data-toggle="tab">删除路由</a></li>
         </ul>
 
         <!--导出数据-->
@@ -178,7 +179,7 @@
             <div role="tabpanel" class="tab-pane" id="bulkDelete">
                 <div class="toolWrapper row">
                     <div id="bulkDeleteTool" class="toolFrame col-xs-12 col-md-6">
-                        <h2>Bulk Delete</h2>
+                        <h2>以type为单位删除数据</h2>
                         <form id="bulkDeleteForm" role="form">
                             <div class="form-group">
                                 <label for="bulkDeleteIndex">index</label>
@@ -216,6 +217,7 @@
                 </div>
             </div>
 
+            <!--flyway删除-->
             <div role="tabpanel" class="tab-pane" id="flywayDelete">
                 <div class="toolWrapper row">
                     <div class="toolFrame col-xs-12 col-md-6">
@@ -240,6 +242,34 @@
                         <p> 根据版本号删除flyway一条信息</p>
                     </div>
                 </div>
+            </div>
+
+            <!--路由删除-->
+            <div role="tabpanel" class="tab-pane" id="routingDelete">
+                <div class="toolWrapper row">
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h2>路由删除功能</h2>
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="routingDeleteValue">路由值</label>
+                                <div class="form-group">
+                                    <div class="form-group">
+                                        <input class="form-control" id="routingDeleteValue" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" id="deleteRoutingBtn" class="btn btn-default">删除</button>
+                        </form>
+                        <textarea id="routingDelResult" cols="70" class="execResult"></textarea>
+
+                    </div>
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h3>usage:</h3>
+                        <p> 根据路由值删除该路由下所有数据（请谨慎操作！）</p>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -421,7 +451,7 @@
 
                 //如果data值为空，发起查询请求
                 if (!bulkDeleteData) {
-                    if (!confirm('确认全部该类型下的数据吗？')) {
+                    if (!confirm('确认删除该类型全部下的数据吗？')) {
                         return false;
                     }
                     var index = $("#bulkDeleteIndex").val();
@@ -566,8 +596,34 @@
                     }
                 });
             });
+        });
 
+        //    删除路由
+        $("#deleteRoutingBtn").on('click', function() {
+            var routing = $("#routingDeleteValue").val();
+            var searchUrl = host + '/_search';
+            var bulkDelRoutingUrl = host + "/_bulk";
 
+            $.ajax({
+                url: searchUrl,
+                type: "POST",
+                data: '{"from":0,"size":10000,"query": {"term": {"_routing": "' + routing + '"}}}',
+                success: function(result) {
+                    if (!(result && result.hits.hits[0] && result.hits.hits[0]._id)) {
+                        console.log('查询没有结果');
+                        $("#routingDelResult").text('查询没有结果');
+                        return;
+                    }
+                    bulkDelete(bulkDelRoutingUrl, result, routing);
+                    $("#routingDelResult").text('删除成功！共删除' + result.hits.hits.length + "条数据。");
+                    return false;
+
+                },
+                error: function(err) {
+                    $("#routingDelResult").text('获取路由下数据失败' + err);
+
+                }
+            });
         });
 
 
@@ -676,10 +732,12 @@
                 console.error(err.message, err.stack);
             }
             for (var i = 0; i < dataBody.length; i++) {
+                var _index = dataBody[i]._index;
+                var _type = dataBody[i]._type;
                 if (routing) {
-                    bulkBody += '{"delete":{"_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
+                    bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
                 } else {
-                    bulkBody += '{"delete":{"_id":"' + dataBody[i]._id.trim() + '"}}\n';
+                    bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '"}}\n';
                 }
             }
             if (!dataBody || (dataBody.length <= 0)) {

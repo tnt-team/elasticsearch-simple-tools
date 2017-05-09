@@ -71,17 +71,19 @@
 
 
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#typeExport" role="tab" data-toggle="tab">type导出</a></li>
-            <li role="presentation"><a href="#typeImport" role="tab" data-toggle="tab">type导入</a></li>
-            <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">bulk删除</a></li>
+            <li role="presentation" class="active"><a href="#typeExport" role="tab" data-toggle="tab">数据查询与导出</a></li>
+            <li role="presentation"><a href="#typeImport" role="tab" data-toggle="tab">数据导入</a></li>
+            <li role="presentation"><a href="#typeUpgrade" role="tab" data-toggle="tab">数据迁移</a></li>
+            <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">批量删除</a></li>
             <li role="presentation"><a href="#flywayDelete" role="tab" data-toggle="tab">flyway删除</a></li>
         </ul>
 
+        <!--导出数据-->
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="typeExport">
                 <div class="toolWrapper row">
                     <div id="exportTool" class="toolFrame col-xs-12 col-md-6">
-                        <h2>Type Export</h2>
+                        <h2>数据查询及导出功能</h2>
                         <form id="exportForm" role="form">
                             <div class="form-group">
                                 <label for="exportIndex">index</label>
@@ -97,40 +99,82 @@
                                 </select>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-default">Submit</button>
-                            <button type="button" class="btn btn-default exportJson">下载文件</button>
+                            <button type="submit" class="btn btn-default">查询</button>
+                            <button type="button" class="btn btn-default exportJson">下载</button>
                         </form>
                         <textarea id="exportResult" cols="70" class="execResult"></textarea>
                     </div>
                     <div class="toolFrame col-xs-12 col-md-6">
                         <h3>usage:</h3>
-                        <p>填入index和type, 返回该type全部数据查询结果。</p>
+                        <p>选择index和type,点击“查询”可显示该type下所有数据，点击“下载”可下载该数据json文件</p>
                     </div>
                 </div>
             </div>
+            <!--导入数据-->
             <div role="tabpanel" class="tab-pane" id="typeImport">
                 <div class="toolWrapper row">
 
                     <div id="importTool" class="toolFrame col-xs-12 col-md-6">
-                        <div>
+                        <!--<div>
                             <button class="btn btn-default import-btn" disabled="disabled">导入数据</button>
-                        </div>
-                        <h2>Type Import</h2>
+                        </div>-->
+                        <h2>数据导入功能</h2>
                         <form id="importForm" role="form">
                             <div class="form-group">
-                                <label for="importData">data</label>
+                                <label for="importData">请在此填入数据</label>
                                 <textarea id="importData" class="form-control" rows="4" placeholder="data"></textarea>
                             </div>
-                            <button type="submit" class="btn btn-default">Submit</button>
+                            <button type="submit" class="btn btn-default">开始导入</button>
                         </form>
                         <textarea id="importResult" cols="70" class="execResult"></textarea>
                     </div>
                     <div class="toolFrame col-xs-12 col-md-6">
                         <h3>usage:</h3>
-                        <p>拷贝head插件或本工具集导出工具查询出的json结果, 修改数据(如果需要), 执行批量插入或更新。</p>
+                        <p>拷贝本工具集“数据查询及导出功能”查询得到的json结果,填入数据，执行“开始导入”即可。</p>
                     </div>
                 </div>
             </div>
+            <!-- 数据迁移 -->
+            <div role="tabpanel" class="tab-pane" id="typeUpgrade">
+                <div class="toolWrapper row">
+                    <div id="upgradeTool" class="toolFrame col-xs-12 col-md-6">
+                        <h2>数据迁移</h2>
+                        <form id="upgradeForm" role="form">
+                            <!--<div class="form-group">
+                                <label for="upgradeFromIndex">from index</label>
+                                <input type="text" class="form-control" id="upgradeFromIndex" placeholder="from index">
+                            </div>-->
+                            <div class="form-group">
+                                <label for="upgradeFromIndex">起始索引</label>
+                                <div class="form-group">
+                                    <select class="form-control _index" id="upgradeFromIndex">
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="upgradeToIndex">目标索引</label>
+                                <div class="form-group">
+                                    <select class="form-control _index" id="upgradeToIndex">
+                                </select>
+                                </div>
+                            </div>
+                            <!--<div class="form-group">
+                                <label for="upgradeToIndex">目标索引</label>
+                                <input type="text" class="form-control" id="upgradeToIndex" placeholder="to index">
+                            </div>-->
+                            <button type="submit" class="btn btn-default">开始迁移</button>
+                        </form>
+                        <p id="upgradeResult" class="execResult"></p>
+                    </div>
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h3>usage:</h3>
+                        <p>迁移索引数据。</p>
+                        <p>将起始索引的数据迁移到目标索引中。（目前只能迁移10000条数据）</p>
+                    </div>
+                </div>
+            </div>
+
+            <!--批量删除-->
             <div role="tabpanel" class="tab-pane" id="bulkDelete">
                 <div class="toolWrapper row">
                     <div id="bulkDeleteTool" class="toolFrame col-xs-12 col-md-6">
@@ -166,11 +210,12 @@
                     </div>
                     <div class="toolFrame col-xs-12 col-md-6">
                         <h3>usage:</h3>
-                        <p>输入要删除的数据id, 多个id以逗号分隔。<br> or 拷贝head插件或本工具集导出工具查询出的json结果, 修改数据(如果需要), 执行批量删除。
+                        <p>填入本工具集导出工具查询出的json结果, 执行批量删除；或为空删除该类型下所有数据。
                         </p>
                     </div>
                 </div>
             </div>
+
             <div role="tabpanel" class="tab-pane" id="flywayDelete">
                 <div class="toolWrapper row">
                     <div class="toolFrame col-xs-12 col-md-6">
@@ -183,7 +228,6 @@
                                         <input class="form-control" id="deleteFlyVersion" />
                                     </div>
                                 </div>
-                                <!--<input type="text" class="form-control" id="bulkDeleteIndex" placeholder="index">-->
                             </div>
 
                             <button type="button" id="deleteFlyBtn" class="btn btn-default">删除</button>
@@ -193,8 +237,7 @@
                     </div>
                     <div class="toolFrame col-xs-12 col-md-6">
                         <h3>usage:</h3>
-                        <p>输入要删除的数据id, 多个id以逗号分隔。<br> or 拷贝head插件或本工具集导出工具查询出的json结果, 修改数据(如果需要), 执行批量删除。
-                        </p>
+                        <p> 根据版本号删除flyway一条信息</p>
                     </div>
                 </div>
             </div>
@@ -373,13 +416,18 @@
                     msgBulkDeleteResult("参数为空");
                     return false;
                 }
-                //如果id值为空，发起查询请求
+
                 var bulkDeleteUrl = host + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_bulk";
 
+                //如果data值为空，发起查询请求
                 if (!bulkDeleteData) {
+                    if (!confirm('确认全部该类型下的数据吗？')) {
+                        return false;
+                    }
                     var index = $("#bulkDeleteIndex").val();
                     var type = $("#bulkDeleteType").val();
                     var searchUrl = host + "/" + index + "/" + type + "/_search";
+
                     $.ajax({
                         type: "POST",
                         url: searchUrl,
@@ -388,7 +436,6 @@
                         success: function(result) {
                             bulkDelete(bulkDeleteUrl, result);
                             return false;
-
                         },
                         error: function(result) {
                             msgBulkDeleteResult(JSON.stringify(result));
@@ -396,12 +443,90 @@
                         }
                     });
                 } else {
+
                     bulkDelete(bulkDeleteUrl, JSON.parse(bulkDeleteData));
 
                 }
 
             });
 
+            // type upgrade
+            $("#upgradeResult").height($(".toolFrame").height() - 356 + 75);
+
+            function msgUpgradeResult(msg) {
+                $("#upgradeResult").text(msg);
+            }
+            $("#upgradeForm").on("submit", function(evt) {
+                evt.preventDefault();
+                msgUpgradeResult("...");
+                var upgradeFromIndex = $("#upgradeFromIndex").val().trim();
+                var upgradeToIndex = $("#upgradeToIndex").val().trim();
+                if (!upgradeFromIndex || !upgradeToIndex) {
+                    msgUpgradeResult("参数为空");
+                    return false;
+                }
+                var upgradeUrl = host + "/" + upgradeFromIndex;
+                upgradeUrl += "/_search";
+                $.ajax({
+                    type: "POST",
+                    url: upgradeUrl,
+                    data: '{"fields":["_parent","_source"],"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
+                        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
+                    success: function(result) {
+                        msgUpgradeResult('升级中...');
+                        try {
+                            var importDataObj = result;
+                            var dataBody;
+                            if (typeof importDataObj.hits === "object" && !(importDataObj.hits instanceof Array) &&
+                                typeof importDataObj.hits.hits === "object" && importDataObj.hits.hits instanceof Array) {
+                                dataBody = importDataObj.hits.hits;
+                            } else if (typeof importDataObj.hits === "object" && importDataObj.hits instanceof Array) {
+                                dataBody = importDataObj.hits;
+                            }
+                            var bulkBody = "";
+                            var i, dataItem, dataItemId, dataItemIndex, dataItemType, dataItemRouting, dataItemSource;
+                            for (i = 0; i < dataBody.length; i++) {
+                                dataItem = dataBody[i];
+                                dataItemId = dataItem._id;
+                                dataItemIndex = upgradeToIndex;
+                                dataItemType = dataItem._type;
+                                dataItemRouting = dataItem._routing;
+                                dataItemSource = dataItem._source;
+
+                                if (dataItemRouting) {
+                                    bulkBody += '{"index":{"_index":"' + dataItemIndex + '","_type":"' + dataItemType + '","_id":"' +
+                                        dataItemId + '","_routing":"' + dataItemRouting + '"}}\n';
+                                } else {
+                                    bulkBody += '{"index":{"_index":"' + dataItemIndex + '","_type":"' + dataItemType + '","_id":"' +
+                                        dataItemId + '"}}\n';
+                                }
+                                bulkBody += JSON.stringify(dataItemSource) + '\n';
+                            }
+
+                            var importUrl = host + "/_bulk";
+                            $.ajax({
+                                type: "POST",
+                                url: importUrl,
+                                data: bulkBody,
+                                success: function(result) {
+                                    msgUpgradeResult(JSON.stringify(result));
+                                },
+                                error: function(result) {
+                                    msgUpgradeResult(JSON.stringify(result));
+                                }
+                            });
+                        } catch (err) {
+                            console.error(err.message, err.stack);
+                        }
+                    },
+                    error: function(result) {
+                        msgUpgradeResult(JSON.stringify(result));
+                    }
+                });
+                return false;
+            });
+
+            // flyway删除
             $("#deleteFlyBtn").on('click', function() {
                 var text = $("#deleteFlyVersion").val();
                 var searchUrl = host + '/flyway/flywayInfo/_search';

@@ -464,17 +464,21 @@
                         data: '{"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
                             '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
                         success: function(result) {
-                            bulkDelete(bulkDeleteUrl, result);
+                            bulkDelete(bulkDeleteUrl, result, function(err) {
+                                msgBulkDeleteResult("删除完成！共删除" + result.hits.hits.length + "条数据。");
+                            });
                             return false;
                         },
-                        error: function(result) {
-                            msgBulkDeleteResult(JSON.stringify(result));
+                        error: function(err) {
+                            msgBulkDeleteResult(JSON.stringify(err));
                             return false;
                         }
                     });
                 } else {
-
-                    bulkDelete(bulkDeleteUrl, JSON.parse(bulkDeleteData));
+                    var bulkDelDateJson = JSON.parse(bulkDeleteData);
+                    bulkDelete(bulkDeleteUrl, bulkDelDateJson, function(err) {
+                        msgBulkDeleteResult("删除完成！共删除" + bulkDelDateJson.hits.hits.length + "条数据。");
+                    });
 
                 }
 
@@ -586,9 +590,7 @@
                                 console.log(data);
                             }
                         });
-
                         return false;
-
                     },
                     error: function(result) {
                         msgBulkDeleteResult(JSON.stringify(result));
@@ -614,10 +616,10 @@
                         $("#routingDelResult").text('查询没有结果');
                         return;
                     }
-                    bulkDelete(bulkDelRoutingUrl, result, routing);
-                    $("#routingDelResult").text('删除成功！共删除' + result.hits.hits.length + "条数据。");
-                    return false;
-
+                    bulkDelete(bulkDelRoutingUrl, result, function(err) {
+                        $("#routingDelResult").text('删除成功！共删除' + result.hits.hits.length + "条数据。");
+                        return false;
+                    }, routing);
                 },
                 error: function(err) {
                     $("#routingDelResult").text('获取路由下数据失败' + err);
@@ -716,7 +718,7 @@
          * @param routing  路由
          * @returns {boolean}
          */
-        function bulkDelete(deleteUrl, bulkDeleteObj, routing) {
+        function bulkDelete(deleteUrl, bulkDeleteObj, callback, routing) {
 
             var dataBody = '',
                 bulkBody = '';
@@ -734,6 +736,7 @@
             for (var i = 0; i < dataBody.length; i++) {
                 var _index = dataBody[i]._index;
                 var _type = dataBody[i]._type;
+                routing = dataBody[i]._routing || routing
                 if (routing) {
                     bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
                 } else {
@@ -741,7 +744,8 @@
                 }
             }
             if (!dataBody || (dataBody.length <= 0)) {
-                msgBulkDeleteResult('该类型下没有数据');
+                callback('该类型下没有数据', null);
+                // msgBulkDeleteResult('该类型下没有数据');
                 return false;
             }
             if (!confirm('确定删除数据吗?')) {
@@ -753,10 +757,12 @@
                 url: deleteUrl,
                 data: bulkBody,
                 success: function(result) {
-                    msgBulkDeleteResult(format(JSON.stringify(result), false));
+                    callback(null);
+                    // msgBulkDeleteResult(format(JSON.stringify(result), false));
                 },
-                error: function(result) {
-                    msgBulkDeleteResult(format(JSON.stringify(result), false));
+                error: function(err) {
+                    callback(err, null);
+                    // msgBulkDeleteResult(format(JSON.stringify(result), false));
                 }
             });
             return false;

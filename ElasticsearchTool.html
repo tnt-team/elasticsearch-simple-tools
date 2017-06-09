@@ -52,6 +52,14 @@
         .import-btn {
             margin-top: 20px;
         }
+
+        #exportSelectGroupN {
+            border: 1px #efefef solid;
+
+            max-height: 400px;
+            padding-left: 10px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 
@@ -77,6 +85,7 @@
             <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">批量删除</a></li>
             <li role="presentation"><a href="#flywayDelete" role="tab" data-toggle="tab">flyway删除</a></li>
             <li role="presentation"><a href="#routingDelete" role="tab" data-toggle="tab">删除路由</a></li>
+            <li role="presentation"><a id="dataExportToggle" href="#dataExport" role="tab" data-toggle="tab">数据导出·新</a></li>
         </ul>
 
         <!--导出数据-->
@@ -271,7 +280,28 @@
                 </div>
 
             </div>
-        </div>
+
+            <!--导出数据·新-->
+            <div role="tabpanel" class="tab-pane" id="dataExport">
+                <div class="toolWrapper row">
+                    <div id="exportTool" class="toolFrame col-xs-12 col-md-6">
+                        <h2>数据导出功能·新</h2>
+                        <form id="exportFormN" role="form">
+                            <div id="exportSelectGroupN" class="form-group"></div>
+                            <div class="form-group">
+                                <label for="exportRoutingN">routing</label>
+                                <input type="text" class="form-control" id="exportRoutingN" placeholder="routing">
+                            </div>
+                            <button type="submit" class="btn btn-default">导出</button>
+                        </form>
+                        <textarea id="exportNResult" cols="70" class="execResult"></textarea>
+                    </div>
+                    <div class="toolFrame col-xs-12 col-md-6">
+                        <h3>usage:</h3>
+                        <p>选择index和type,点击“查询”可显示该type下所有数据，点击“下载”可下载该数据json文件</p>
+                    </div>
+                </div>
+            </div>
 
     </div>
 
@@ -287,18 +317,19 @@
         console.log("1.copy this file to /usr/local/elasticsearch-2.2.0/plugins/head/_site/");
         console.log("2.visit [host]:9200/_plugin/head/ElasticsearchTool.html");
 
+        // global vars
+        var indices = 0;
+
         // var host = getHost();
         var host = getHost();
 
         $(function() {
 
-
-
             //页面设置高度
             setHeight();
 
-            setAllIndex();
-
+            // setAllIndex();
+            getState();
 
             //
             // $("#esConnect").on('click',function () {
@@ -597,36 +628,191 @@
                     }
                 });
             });
-        });
 
-        //    删除路由
-        $("#deleteRoutingBtn").on('click', function() {
-            var routing = $("#routingDeleteValue").val();
-            var searchUrl = host + '/_search';
-            var bulkDelRoutingUrl = host + "/_bulk";
+            //    删除路由
+            $("#deleteRoutingBtn").on('click', function() {
+                var routing = $("#routingDeleteValue").val();
+                var searchUrl = host + '/_search';
+                var bulkDelRoutingUrl = host + "/_bulk";
 
-            $.ajax({
-                url: searchUrl,
-                type: "POST",
-                data: '{"from":0,"size":10000,"query": {"term": {"_routing": "' + routing + '"}}}',
-                success: function(result) {
-                    if (!(result && result.hits.hits[0] && result.hits.hits[0]._id)) {
-                        console.log('查询没有结果');
-                        $("#routingDelResult").text('查询没有结果');
-                        return;
+                $.ajax({
+                    url: searchUrl,
+                    type: "POST",
+                    data: '{"from":0,"size":10000,"query": {"term": {"_routing": "' + routing + '"}}}',
+                    success: function(result) {
+                        if (!(result && result.hits.hits[0] && result.hits.hits[0]._id)) {
+                            console.log('查询没有结果');
+                            $("#routingDelResult").text('查询没有结果');
+                            return;
+                        }
+                        bulkDelete(bulkDelRoutingUrl, result, function(err) {
+                            $("#routingDelResult").text('删除成功！共删除' + result.hits.hits.length + "条数据。");
+                            return false;
+                        }, routing);
+                    },
+                    error: function(err) {
+                        $("#routingDelResult").text('获取路由下数据失败' + err);
+
                     }
-                    bulkDelete(bulkDelRoutingUrl, result, function(err) {
-                        $("#routingDelResult").text('删除成功！共删除' + result.hits.hits.length + "条数据。");
-                        return false;
-                    }, routing);
-                },
-                error: function(err) {
-                    $("#routingDelResult").text('获取路由下数据失败' + err);
-
-                }
+                });
             });
-        });
 
+            // 数据导出·新
+            $('#dataExportToggle').on('shown.bs.tab', function (e) {
+                console.log('here');
+                var sel = $('#exportSelectGroupN');
+                if (sel.html().trim() !== '') return;
+
+                var tpl1 = '<div class="checkbox"><label><input class="index-ck" data-index="{{index}}" type="checkbox" value="{{index}}"><b>{{index}}</b></label>{{indexHtml}}</div>';
+                var tpl2 = '<label class="checkbox-inline"><input class="type-ck" data-index="{{index}}" type="checkbox" value="{{type}}">{{type}}</label>';
+                var innerHtml = '<div class="checkbox"><label><input class="all-ck" type="checkbox" value=""><b>全选</b></label></div>';
+                Object.keys(indices).forEach(function(index) {
+                    var indexHtml = '';
+                    var types = indices[index];
+                    if (types.length > 0) indexHtml += '&nbsp;&nbsp;&nbsp;&nbsp;';
+                    types.forEach(function(type) {
+                        indexHtml += tpl2.replace(/{{index}}/g, index).replace(/{{type}}/g, type);
+                    });
+
+                    innerHtml += tpl1.replace(/{{index}}/g, index).replace(/{{indexHtml}}/g, indexHtml);
+                });
+                sel.html(innerHtml);
+
+                //events
+                sel.find('.all-ck').on('click', function() {
+                    // console.log('click');
+                    var isChecked = $(this).is(":checked");
+                    var selIndex = sel.find('.index-ck');
+                    var selType = sel.find('.type-ck');
+                    if (isChecked) {
+                        selIndex.prop("checked", "checked");
+                        selType.prop("checked", "checked");
+                    }
+                    else {
+                        selIndex.removeAttr("checked");
+                        selType.removeAttr("checked");
+                    }
+                });
+
+                sel.find('.index-ck').on('change', function() {
+                    // console.log('change');
+                    var isChecked = $(this).is(":checked");
+                    var selIndex = sel.find('.index-ck');
+                    var selIndexChecked = sel.find('.index-ck:checked');
+                    var index = $(this).attr('data-index');
+                    var selType = sel.find('.type-ck[data-index=' + index + ']');
+                    var selTypeChecked = sel.find('.type-ck[data-index=' + index + ']:checked');
+                    if (isChecked) {
+                        if (selIndexChecked.length === selIndex.length) sel.find('.all-ck').prop("checked", "checked");
+                        if (selTypeChecked.length === 0) selType.prop("checked", "checked");
+                    }
+                    else {
+                        sel.find('.all-ck').removeAttr("checked");
+                        selType.removeAttr("checked");
+                    }
+                });
+
+                sel.find('.type-ck').on('click', function() {
+                    // console.log('click');
+                    var isChecked = $(this).is(":checked");
+                    var index = $(this).attr('data-index');
+                    var selIndex = sel.find('.index-ck[data-index=' + index + ']');
+                    var selTypeChecked = sel.find('.type-ck[data-index=' + index + ']:checked');
+                    if (isChecked) {
+                        selIndex.prop("checked", "checked");
+                        sel.find('.index-ck').trigger("change");
+                    } 
+                    if (!isChecked && selTypeChecked.length === 0) {
+                        selIndex.removeAttr("checked");
+                        sel.find('.index-ck').trigger("change");
+                    }
+                });
+            });
+
+            $("#exportFormN").on("submit", function(evt) {
+
+                var exportTotalResult = [];
+
+                evt.preventDefault();
+                msgExportNResult("...");
+
+                var routing = $("#exportRoutingN").val().trim();
+
+                var exportTypeQuery = function(index, type, routing) {
+                    var exportUrl = host + "/" + index + "/" + type + "/_search";
+                    var exportResult = {};
+                    var routingQurey = '';
+                    if (routing) {
+                        routingQurey = '{"term":{ "_routing":"' + routing + '"}}';
+                    }
+                    // console.log(routingQurey);
+                    var ajaxQuery = function(from) {
+                        if (!from) from = 0;
+                        $.ajax({
+                            type: "POST",
+                            url: exportUrl,
+                            data: '{"from":'+ from + ',"size":10000,"query":{"bool":{"must":['+ routingQurey +'],"must_not":[],' +
+                                '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
+                            success: function(result) {
+                                msgExportNResult("......");
+                                if (typeof exportResult.total !== 'number') {
+                                    exportResult.total = result.hits.total;
+                                    exportResult.hits = [];
+                                }
+                                if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
+                                    exportResult.hits = exportResult.hits.concat(result.hits.hits);
+                                }
+                                if (from + 10000 < exportResult.total) ajaxQuery(from + 10000);
+                                else exportTotalResult.push({ index: index, type: type, data: exportResult});
+                            },
+                            error: function(result) {
+                                msgExportNResult(JSON.stringify(result));
+                            }
+                        });
+                    }
+                    ajaxQuery();
+                }
+                
+                var selTypeChecked = $('#exportSelectGroupN').find('.type-ck:checked');
+                selTypeChecked.each(function(ix, selType) {
+                    selType = $(selType);
+                    var index = selType.attr('data-index');
+                    var type = selType.val();
+                    exportTypeQuery(index, type, routing);
+                });
+
+                var timer = setInterval(function() {
+                    if (exportTotalResult.length === selTypeChecked.length) {
+                        console.log(exportTotalResult);
+                        clearInterval(timer);
+
+                        // export file
+                        var outContent = '// --------------------------------------------------------\n';
+                        // author
+                        outContent +=    '// ------------------ ElasticsearchTool -------------------\n';
+                        // date
+                        var cdate = new Date();
+                        outContent +=    '// ------- ' + cdate.toString() + ' ---------\n';
+                        outContent +=    '// --------------------------------------------------------\n';
+                        outContent +=    '\n\n';
+                        // data
+                        exportTotalResult.forEach(function(typeData) {
+                            outContent +=    '// --------------------------------------------------------\n';
+                            outContent +=    '// ---------- index:' + typeData.index + '\n---------- type: ' + typeData.type + '\n';
+                            outContent += JSON.stringify(typeData.data);
+                            outContent +=    '\n';
+                            outContent +=    '// --------------------------------------------------------\n\n';
+                        }); 
+                        console.log(outContent);
+                        msgExportNResult(outContent);
+                        downloadFile('export' + cdate.getTime(), outContent, 'text/plain');
+                    }
+                }, 200);
+
+                return false;
+            });
+
+        });
 
         function msgExportResult(msg) {
             $("#exportResult").html(msg);
@@ -640,6 +826,10 @@
         // bulk delete
         function msgBulkDeleteResult(msg) {
             $("#bulkDeleteResult").html(msg);
+        }
+
+        function msgExportNResult(msg) {
+            $("#exportNResult").html(msg);
         }
 
         function setHeight() {
@@ -657,56 +847,110 @@
 
         }
 
-        /**
-         * 获取所有索引
-         */
-        function setAllIndex() {
-            var url = host + "/_cat/indices";
-            var indices = [];
-            var firstIndex = '';
-
+        function getState() {
+            var url = host + "/_cluster/state";
             $.ajax({
                 type: "GET",
                 url: url,
                 success: function(data) {
-                    console.log(data);
-                    var indices_text = data.split("\n");
-                    indices_text.pop();
-
-                    indices_text.forEach(function(e) {
-                        var arr = e.split(" ");
-                        if (!firstIndex) {
-                            firstIndex = arr[2];
-                        }
-                        indices.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
-                    });
-                    $("._index").append(indices.toString());
-                    if (firstIndex) {
-                        setTypes(firstIndex);
+                    if (typeof data.metadata !== 'object') {
+                        if (--indices >= -3) setTimeout(getState, 250);
+                        else console.error('getState: try 3 times without prefered result.');
+                        return;
                     }
+                    console.log(data);
+                    indices = {};
+                    var data_indices = data.metadata.indices;
+                    Object.keys(data_indices).forEach(function(index) {
+                        var index_data = data_indices[index];
+                        var index_mappings = index_data.mappings;
+
+                        indices[index] = Object.keys(index_mappings);
+                    });
+                    console.log(indices);
+                    setAllIndex();
                 },
-                error: function(result) {
-                    msgBulkDeleteResult(JSON.stringify(result));
-                    return false;
+                error: function(err) {
+                    console.error('getState: error.');
+                    console.error(err);
                 }
             });
+        }
 
+        /**
+         * 获取所有索引
+         */
+        // function setAllIndex() {
+        //     var url = host + "/_cat/indices";
+        //     var indexOptions = [];
+        //     var firstIndex = '';
+
+        //     $.ajax({
+        //         type: "GET",
+        //         url: url,
+        //         success: function(data) {
+        //             // console.log(data);
+        //             var indices_text = data.split("\n");
+        //             indices_text.pop();
+
+        //             indices_text.forEach(function(it) {
+        //                 var arr = it.trim().split(/\s+/);
+        //                 // indices.push(arr);
+        //                 if (!firstIndex) {
+        //                     firstIndex = arr[2];
+        //                 }
+        //                 indexOptions.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
+        //             });
+        //             $("._index").append(indexOptions.toString());
+        //             if (firstIndex) {
+        //                 setTypes(firstIndex);
+        //             }
+        //         },
+        //         error: function(result) {
+        //             msgBulkDeleteResult(JSON.stringify(result));
+        //             return false;
+        //         }
+        //     });
+
+
+        // }
+        function setAllIndex() {
+            var indexOptions = [];
+            var firstIndex = '';
+
+            Object.keys(indices).forEach(function(index) {
+                if (!firstIndex) {
+                    firstIndex = index;
+                }
+                indexOptions.push("<option value='" + index + "'>" + index + "</option>");
+            });
+            $("._index").append(indexOptions.toString());
+            if (firstIndex) {
+                setTypes(firstIndex);
+            }
 
         }
 
         /**
          * 根据索引设置类型
          */
-        function setTypes(index) {
-            var url = host + "/" + index + "/_mapping";
-            $.get(url, function(data) {
-                var mapping = data[index].mappings;
-                var types = Object.keys(mapping);
-                $("._type").html(" ");
-                types.forEach(function(type) {
-                    $("._type").append("<option value='" + type + "'>" + type + "</option>");
-                });
+        // function setTypes(index) {
+        //     var url = host + "/" + index + "/_mapping";
+        //     $.get(url, function(data) {
+        //         var mapping = data[index].mappings;
+        //         var types = Object.keys(mapping);
+        //         $("._type").html(" ");
+        //         types.forEach(function(type) {
+        //             $("._type").append("<option value='" + type + "'>" + type + "</option>");
+        //         });
 
+        //     });
+        // }
+        function setTypes(index) {
+            var types = indices[index];
+            $("._type").html(" ");
+            types.forEach(function(type) {
+                $("._type").append("<option value='" + type + "'>" + type + "</option>");
             });
         }
 
@@ -786,10 +1030,12 @@
          * @param fileName
          * @param content
          */
-        function downloadFile(fileName, content) {
+        function downloadFile(fileName, content, ext) {
             var a = document.createElement('a');
+            var defaultType = {type: 'application/json'};
+            if (ext) defaultType.type = ext;
             var blob = new Blob([content], {
-                type: 'application/json'
+                type: defaultType
             });
             var url = window.URL.createObjectURL(blob);
             a.href = url;

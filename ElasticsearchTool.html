@@ -666,7 +666,9 @@
                 var tpl1 = '<div class="checkbox"><label><input class="index-ck" data-index="{{index}}" type="checkbox" value="{{index}}"><b>{{index}}</b></label>{{indexHtml}}</div>';
                 var tpl2 = '<label class="checkbox-inline"><input class="type-ck" data-index="{{index}}" type="checkbox" value="{{type}}">{{type}}</label>';
                 var innerHtml = '<div class="checkbox"><label><input class="all-ck" type="checkbox" value=""><b>全选</b></label></div>';
-                Object.keys(indices).forEach(function(index) {
+                var idx = Object.keys(indices);
+                idx.sort();
+                idx.forEach(function(index) {
                     var indexHtml = '';
                     var types = indices[index];
                     if (types.length > 0) indexHtml += '&nbsp;&nbsp;&nbsp;&nbsp;';

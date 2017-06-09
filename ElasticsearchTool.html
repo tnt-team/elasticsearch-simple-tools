@@ -109,6 +109,10 @@
                                 </select>
                                 </div>
                             </div>
+                            <div class="form-group">
+                                <label for="exportRouting">routing</label>
+                                <input type="text" class="form-control" id="exportRouting" placeholder="routing">
+                            </div>
                             <button type="submit" class="btn btn-default">查询</button>
                             <button type="button" class="btn btn-default exportJson">下载</button>
                         </form>
@@ -353,13 +357,18 @@
                     msgExportResult("参数为空");
                     return false;
                 }
+                var routing = $("#exportRouting").val().trim();
+                var routingQurey = '';
+                if (routing) {
+                    routingQurey = '{"term":{ "_routing":"' + routing + '"}}';
+                }
                 var exportUrl = host + "/" + _index;
                 if (exportType) exportUrl += "/" + exportType;
                 exportUrl += "/_search";
                 $.ajax({
                     type: "POST",
                     url: exportUrl,
-                    data: '{"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
+                    data: '{"from":0,"size":10000,"query":{"bool":{"must":['+ routingQurey +'],"must_not":[],' +
                         '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
                     success: function(result) {
                         var json = format(JSON.stringify(result), false);

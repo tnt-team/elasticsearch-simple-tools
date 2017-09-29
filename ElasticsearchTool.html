@@ -211,7 +211,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="bulkDeleteRouting">routing</label>
-                                <input type="text" class="form-control" id="bulkDeleteRouting" placeholder="routing">
+                                <input type="text" class="form-control" id="bulkDeleteRouting" placeholder="routing,为空表示删除所有路由下该类型数据">
                             </div>
                             <div class="form-group">
                                 <label for="bulkDeleteData">data</label>
@@ -223,7 +223,7 @@
                     </div>
                     <div class="toolFrame col-xs-12 col-md-6">
                         <h3>usage:</h3>
-                        <p>填入本工具集导出工具查询出的json结果, 执行批量删除；或为空删除该类型下所有数据。
+                        <p>批量删除
                         </p>
                     </div>
                 </div>
@@ -493,10 +493,10 @@
                         if (!confirm('确认删除该类型全部下的数据吗？')) {
                             return false;
                         }
-                        var index = $("#bulkDeleteIndex").val();
-                        var type = $("#bulkDeleteType").val();
-                        var searchUrl = host + "/" + index + "/" + type + "/_search?routing=" + bulkDeleteRouting;
-
+                        var searchUrl = host + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_search";
+                        if (bulkDeleteRouting) {
+                            searchUrl += '?routing=' + bulkDeleteRouting;
+                        }
                         $.ajax({
                             type: "POST",
                             url: searchUrl,
@@ -514,9 +514,13 @@
                             }
                         });
                     } else {
-                        var bulkDelDateJson = JSON.parse(bulkDeleteData);
-                        bulkDelete(bulkDeleteUrl, bulkDelDateJson, function(err) {
-                            msgBulkDeleteResult("删除完成！共删除" + bulkDelDateJson.hits.hits.length + "条数据。");
+                        var delIds = bulkDeleteData.split(',');
+                        bulkDeleteByIds(bulkDeleteUrl, bulkDeleteIndex, bulkDeleteType, bulkDeleteRouting, delIds, function(err, delLength) {
+                            if (err) {
+                                msgBulkDeleteResult("删除失败！" + err);
+                            } else {
+                                msgBulkDeleteResult("删除成功，共删除" + delLength + '条数据');
+                            }
                         });
                     }
 
@@ -940,7 +944,6 @@
             function setAllIndex() {
                 var indexOptions = [];
                 var firstIndex = '';
-
                 Object.keys(indices).forEach(function(index) {
                     if (!firstIndex) {
                         firstIndex = index;
@@ -971,7 +974,7 @@
             // }
             function setTypes(index) {
                 var types = indices[index];
-                $("._type").html(" ");
+                // $("._type").html(" ").append('<option value="all_type">所有类型</option>');
                 types.forEach(function(type) {
                     $("._type").append("<option value='" + type + "'>" + type + "</option>");
                 });
@@ -982,7 +985,6 @@
              * @param deleteUrl  删除url
              * @param bulkDeleteObj  要删除的数据
              * @param routing  路由
-             * @returns {boolean}
              */
             function bulkDelete(deleteUrl, bulkDeleteObj, callback, routing) {
 
@@ -995,7 +997,6 @@
                     } else if (typeof bulkDeleteObj.hits === "object" && bulkDeleteObj.hits instanceof Array) {
                         dataBody = bulkDeleteObj.hits;
                     }
-                    console.log(dataBody);
                 } catch (err) {
                     console.error(err.message, err.stack);
                 }
@@ -1014,10 +1015,6 @@
                     // msgBulkDeleteResult('该类型下没有数据');
                     return false;
                 }
-                if (!confirm('确定删除数据吗?')) {
-                    return;
-                }
-
                 $.ajax({
                     type: "POST",
                     url: deleteUrl,
@@ -1032,6 +1029,36 @@
                     }
                 });
                 return false;
+            }
+
+            /**
+             * 根据id数组批量删除数据
+             */
+            function bulkDeleteByIds(deleteUrl, index, type, routing, idArr, callback) {
+                if (!idArr || idArr.length <= 0) {
+                    callback('没有可删除的数据', null);
+                    return false;
+                }
+                var length = idArr.length;
+                var bulkBody = '';
+                for (var i = 0; i < length; i++) {
+                    if (routing) {
+                        bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '","_routing":"' + routing + '"}}\n';
+                    } else {
+                        bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '"}}\n';
+                    }
+                }
+                $.ajax({
+                    type: "POST",
+                    url: deleteUrl,
+                    data: bulkBody,
+                    success: function(result) {
+                        callback(null, result.items.length);
+                    },
+                    error: function(err) {
+                        callback(err, null);
+                    }
+                });
             }
 
             /**

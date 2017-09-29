@@ -756,24 +756,30 @@
                     if (routing) {
                         routingQurey = '{"term":{ "_routing":"' + routing + '"}}';
                     }
+                    var postData = '{"size":10000,"query":{"bool":{"must":['+ routingQurey +'],"must_not":[],' +
+                        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}';
+                    var nr = '...';
                     // console.log(routingQurey);
                     var ajaxQuery = function(from, scrollId) {
                         if (!from) from = 0;
-                        if (scrollId) exportUrl += '&scroll_id=' + scrollId;
+                        if (scrollId) {
+                            exportUrl = host + '/_search/scroll?scroll=1m&scroll_id=' + scrollId;
+                            postData = ''
+                        }
                         $.ajax({
                             type: "POST",
                             url: exportUrl,
-                            // data: '{"from":'+ from + ',"size":10000,"query":{"bool":{"must":['+ routingQurey +'],"must_not":[],' +
-                            //     '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
-                            data: '{"size":10000,"query":{"bool":{"must":['+ routingQurey +'],"must_not":[],' +
-                                '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
+                            data: postData,
                             success: function(result) {
-                                msgExportNResult("......");
+                                msgExportNResult(nr);
+                                nr += '.';
                                 if (typeof exportResult.total !== 'number') {
                                     exportResult.total = result.hits.total;
                                     exportResult.hits = [];
                                 }
                                 if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
+                                    // console.log('ret5');
+                                    // console.log(result.hits.hits.slice(0, 5));
                                     exportResult.hits = exportResult.hits.concat(result.hits.hits);
                                 }
                                 if (from + 10000 < exportResult.total) ajaxQuery(from + 10000, result._scroll_id);

@@ -15,4 +15,8 @@ yarn-error.log*
 =======
 .idea
 .DS_Store
+<<<<<<< HEAD
 >>>>>>> 351295890e1f576494a5cd5a3ac18fa03d2afaf3
+=======
+node_modules/
+>>>>>>> 4cf4a1c7e35b1aa4c4b8fcf42043b4212f3a327d

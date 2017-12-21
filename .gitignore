@@ -1,2 +1,8 @@
 .idea
 .DS_Store
+
+node_modules/
+dist/
+npm-debug.log
+static/
+index.html

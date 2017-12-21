@@ -59,6 +59,14 @@
             padding-left: 10px;
             overflow-y: auto;
         }
+        
+        .margin-top {
+            margin-top: 20px;
+        }
+        
+        .icon-lg {
+            font-size: 30px;
+        }
     </style>
 </head>
 
@@ -66,25 +74,25 @@
     <div class="container-fluid">
 
         <h1>Elasticsearch实用工具集</h1>
-        <!--<form id="es-form" role="form">-->
 
-        <!--<div class="form-group">-->
-        <!--<label for="es-port">请输入地址</label>-->
-        <!--<input id="es-port" placeholder="如：127.0.0.1:9200" />-->
-        <!--<button id="esConnect" class="btn btn-primary" >连接</button>-->
-        <!--</div>-->
-
-        <!--</form>-->
+        <form id="es-form" role="form">
+            <div class="form-group">
+                <label for="es-port">请输入地址</label>
+                <input id="es-port" placeholder="如：127.0.0.1:9200" />
+                <button id="esConnect" class="btn btn-primary">连接</button>
+            </div>
+        </form>
 
 
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#typeExport" role="tab" data-toggle="tab">数据查询与导出</a></li>
+            <li role="presentation" class="active"><a href="#typeExport" role="tab" data-toggle="tab">批量查询与导出</a></li>
             <li role="presentation"><a href="#typeImport" role="tab" data-toggle="tab">数据导入</a></li>
             <li role="presentation"><a href="#typeUpgrade" role="tab" data-toggle="tab">数据迁移</a></li>
             <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">批量删除</a></li>
             <li role="presentation"><a href="#flywayDelete" role="tab" data-toggle="tab">flyway删除</a></li>
             <li role="presentation"><a href="#routingDelete" role="tab" data-toggle="tab">删除路由</a></li>
             <li role="presentation"><a id="dataExportToggle" href="#dataExport" role="tab" data-toggle="tab">数据导出·新</a></li>
+            <li role="presentation"><a href="#dataEdit" role="tab" data-toggle="tab">修改数据</a></li>
         </ul>
 
         <!--导出数据-->
@@ -306,6 +314,7 @@
                 </div>
             </div>
 
+
         </div>
 
 
@@ -324,7 +333,8 @@
             var indices = 0;
 
             // var host = getHost();
-            var host = getHost();
+            // var host = getHost();
+            var defaultHost = '127.0.0.1:9200';
 
             $(function() {
 
@@ -332,17 +342,17 @@
                 setHeight();
 
                 // setAllIndex();
-                getState();
+                // getState(defaultHost);
 
                 //
-                // $("#esConnect").on('click',function () {
-                //     var ip = $("#es-port").val();
-                //      if(!ip.trim()){
-                //          alert('所填地址为空，请重新填写！');
-                //          return false;
-                //      }
-                //     setAllIndex(host);
-                // });
+                $("#esConnect").on('click', function() {
+                    var host = $("#es-port").val();
+                    if (!host.trim()) {
+                        alert('所填地址为空，请重新填写！');
+                        return false;
+                    }
+                    getState(host);
+                });
 
                 /**
                  * 导出
@@ -541,7 +551,7 @@
                         msgUpgradeResult("参数为空");
                         return false;
                     }
-                
+
                     var upgradeQuery = function(results) {
                         try {
                             var importDataObj = results;
@@ -598,7 +608,7 @@
                     var exportUrl = host + "/" + upgradeFromIndex;
                     exportUrl += "/_search?scroll=1m";
                     var postData = '{"fields":["_parent","_source"],"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
-                            '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}';
+                        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}';
                     var nr = "...";
                     var totalHits = NaN;
                     var totalFrom = NaN;
@@ -881,6 +891,79 @@
                     return false;
                 });
 
+
+                // 数据修改
+                $('#editDataBtn').on('click', function() {
+                    const id = $('#editIdUpdate').val();
+                    const host2 = 'http://127.0.0.1:9200';
+                    const fieldName1 = $('#editFieldNameU1').val();
+                    const fieldValue1 = $('#editFieldU1').val();
+                    var searchUrl = host2 + "/_search";
+                    var param = {
+                        "query": {
+                            "term": {
+                                "_id": id
+                            }
+                        },
+                        "size": 1
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: searchUrl,
+                        contentType: 'application/json',
+                        data: JSON.stringify(param),
+                        success: function(result) {
+                            if (result.hits.total > 0) {
+                                let data = result.hits.hits[0];
+                                let source = data._source;
+                                var updateObj = {};
+                                var first_div = $('.edit-first');
+                                var sourceArr = [];
+                                first_div.$('.edit-field-name-arr').html('');
+                                Object.keys(source).forEach(function(e) {
+                                    if (!u_name) {
+                                        u_name = e + '<span class="caret"></span>';
+                                    }
+                                    first_div.$('.edit-field-name-arr').append('<li><a href="#">' + e + '</a></li>')
+                                    sourceArr.push(e);
+                                });
+                                var u_name = sourceArr[0] + '<span class="caret"></span>'
+                                first_div.$('.edit-field-name').text(u_name);
+
+
+
+                                let index = data._index + '/';
+                                let type = data._type + '/';
+                                let updateUrl = host2 + '/' + index + type + id + '/_update';
+                                let u_param = {
+                                    "doc": updateObj
+                                }
+                                $.ajax({
+                                    type: 'post',
+                                    url: updateUrl,
+                                    contentType: 'application/json',
+                                    data: JSON.stringify(u_param),
+                                    success: function(res) {
+                                        console.log(res);
+
+                                    },
+                                    error: function(error) {
+                                        console.log(error);
+                                    }
+                                })
+                            } else {
+                                console.log('没有数据');
+                            }
+                            console.log(JSON.stringify(result));
+
+
+                        },
+                        error: function(result) {
+                            console.log(result);
+                        }
+                    });
+                });
+
             });
 
             function msgExportResult(msg) {
@@ -916,11 +999,15 @@
 
             }
 
-            function getState() {
+            function getState(host) {
+                if (host.indexOf('http') == -1) {
+                    host = window.location.protocol + "//" + host;
+                }
                 var url = host + "/_cluster/state";
                 $.ajax({
                     type: "GET",
                     url: url,
+                    async: false,
                     success: function(data) {
                         if (typeof data.metadata !== 'object') {
                             if (--indices >= -3) setTimeout(getState, 250);
@@ -939,252 +1026,250 @@
                         console.log(indices);
                         setAllIndex();
                     },
-                    error: function(err) {
-                        console.error('getState: error.');
-                        console.error(err);
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log('getState: error.');
+                        console.log(errorThrown.stack);
                     }
                 });
-            }
-
-            /**
-             * 获取所有索引
-             */
-            // function setAllIndex() {
-            //     var url = host + "/_cat/indices";
-            //     var indexOptions = [];
-            //     var firstIndex = '';
-
-            //     $.ajax({
-            //         type: "GET",
-            //         url: url,
-            //         success: function(data) {
-            //             // console.log(data);
-            //             var indices_text = data.split("\n");
-            //             indices_text.pop();
-
-            //             indices_text.forEach(function(it) {
-            //                 var arr = it.trim().split(/\s+/);
-            //                 // indices.push(arr);
-            //                 if (!firstIndex) {
-            //                     firstIndex = arr[2];
-            //                 }
-            //                 indexOptions.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
-            //             });
-            //             $("._index").append(indexOptions.toString());
-            //             if (firstIndex) {
-            //                 setTypes(firstIndex);
-            //             }
-            //         },
-            //         error: function(result) {
-            //             msgBulkDeleteResult(JSON.stringify(result));
-            //             return false;
-            //         }
-            //     });
 
 
-            // }
-            function setAllIndex() {
-                var indexOptions = [];
-                var firstIndex = '';
-                Object.keys(indices).forEach(function(index) {
-                    if (!firstIndex) {
-                        firstIndex = index;
+                /**
+                 * 获取所有索引
+                 */
+                // function setAllIndex() {
+                //     var url = host + "/_cat/indices";
+                //     var indexOptions = [];
+                //     var firstIndex = '';
+
+                //     $.ajax({
+                //         type: "GET",
+                //         url: url,
+                //         success: function(data) {
+                //             // console.log(data);
+                //             var indices_text = data.split("\n");
+                //             indices_text.pop();
+
+                //             indices_text.forEach(function(it) {
+                //                 var arr = it.trim().split(/\s+/);
+                //                 // indices.push(arr);
+                //                 if (!firstIndex) {
+                //                     firstIndex = arr[2];
+                //                 }
+                //                 indexOptions.push("<option value='" + arr[2] + "'>" + arr[2] + "</option>");
+                //             });
+                //             $("._index").append(indexOptions.toString());
+                //             if (firstIndex) {
+                //                 setTypes(firstIndex);
+                //             }
+                //         },
+                //         error: function(result) {
+                //             msgBulkDeleteResult(JSON.stringify(result));
+                //             return false;
+                //         }
+                //     });
+
+
+                // }
+                function setAllIndex() {
+                    var indexOptions = [];
+                    var firstIndex = '';
+                    Object.keys(indices).forEach(function(index) {
+                        if (!firstIndex) {
+                            firstIndex = index;
+                        }
+                        indexOptions.push("<option value='" + index + "'>" + index + "</option>");
+                    });
+                    $("._index").append(indexOptions.toString());
+                    if (firstIndex) {
+                        setTypes(firstIndex);
                     }
-                    indexOptions.push("<option value='" + index + "'>" + index + "</option>");
-                });
-                $("._index").append(indexOptions.toString());
-                if (firstIndex) {
-                    setTypes(firstIndex);
+
                 }
 
-            }
+                /**
+                 * 根据索引设置类型
+                 */
+                // function setTypes(index) {
+                //     var url = host + "/" + index + "/_mapping";
+                //     $.get(url, function(data) {
+                //         var mapping = data[index].mappings;
+                //         var types = Object.keys(mapping);
+                //         $("._type").html(" ");
+                //         types.forEach(function(type) {
+                //             $("._type").append("<option value='" + type + "'>" + type + "</option>");
+                //         });
 
-            /**
-             * 根据索引设置类型
-             */
-            // function setTypes(index) {
-            //     var url = host + "/" + index + "/_mapping";
-            //     $.get(url, function(data) {
-            //         var mapping = data[index].mappings;
-            //         var types = Object.keys(mapping);
-            //         $("._type").html(" ");
-            //         types.forEach(function(type) {
-            //             $("._type").append("<option value='" + type + "'>" + type + "</option>");
-            //         });
-
-            //     });
-            // }
-            function setTypes(index) {
-                var types = indices[index];
-                $("._type").html(" ");
-                types.forEach(function(type) {
-                    $("._type").append("<option value='" + type + "'>" + type + "</option>");
-                });
-            }
-
-            /**
-             * 批量删除ES数据
-             * @param deleteUrl  删除url
-             * @param bulkDeleteObj  要删除的数据
-             * @param routing  路由
-             */
-            function bulkDelete(deleteUrl, bulkDeleteObj, callback, routing) {
-
-                var dataBody = '',
-                    bulkBody = '';
-                try {
-                    if (typeof bulkDeleteObj.hits === "object" && !(bulkDeleteObj.hits instanceof Array) &&
-                        typeof bulkDeleteObj.hits.hits === "object" && bulkDeleteObj.hits.hits instanceof Array) {
-                        dataBody = bulkDeleteObj.hits.hits;
-                    } else if (typeof bulkDeleteObj.hits === "object" && bulkDeleteObj.hits instanceof Array) {
-                        dataBody = bulkDeleteObj.hits;
-                    }
-                } catch (err) {
-                    console.error(err.message, err.stack);
+                //     });
+                // }
+                function setTypes(index) {
+                    var types = indices[index];
+                    $("._type").html(" ");
+                    types.forEach(function(type) {
+                        $("._type").append("<option value='" + type + "'>" + type + "</option>");
+                    });
                 }
-                for (var i = 0; i < dataBody.length; i++) {
-                    var _index = dataBody[i]._index;
-                    var _type = dataBody[i]._type;
-                    routing = dataBody[i]._routing || routing
-                    if (routing) {
-                        bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
-                    } else {
-                        bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '"}}\n';
+
+                /**
+                 * 批量删除ES数据
+                 * @param deleteUrl  删除url
+                 * @param bulkDeleteObj  要删除的数据
+                 * @param routing  路由
+                 */
+                function bulkDelete(deleteUrl, bulkDeleteObj, callback, routing) {
+
+                    var dataBody = '',
+                        bulkBody = '';
+                    try {
+                        if (typeof bulkDeleteObj.hits === "object" && !(bulkDeleteObj.hits instanceof Array) &&
+                            typeof bulkDeleteObj.hits.hits === "object" && bulkDeleteObj.hits.hits instanceof Array) {
+                            dataBody = bulkDeleteObj.hits.hits;
+                        } else if (typeof bulkDeleteObj.hits === "object" && bulkDeleteObj.hits instanceof Array) {
+                            dataBody = bulkDeleteObj.hits;
+                        }
+                    } catch (err) {
+                        console.error(err.message, err.stack);
                     }
-                }
-                if (!dataBody || (dataBody.length <= 0)) {
-                    callback('该类型下没有数据', null);
-                    // msgBulkDeleteResult('该类型下没有数据');
+                    for (var i = 0; i < dataBody.length; i++) {
+                        var _index = dataBody[i]._index;
+                        var _type = dataBody[i]._type;
+                        routing = dataBody[i]._routing || routing
+                        if (routing) {
+                            bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
+                        } else {
+                            bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' + _type + '","_id":"' + dataBody[i]._id.trim() + '"}}\n';
+                        }
+                    }
+                    if (!dataBody || (dataBody.length <= 0)) {
+                        callback('该类型下没有数据', null);
+                        // msgBulkDeleteResult('该类型下没有数据');
+                        return false;
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: deleteUrl,
+                        data: bulkBody,
+                        success: function(result) {
+                            callback(null);
+                            // msgBulkDeleteResult(format(JSON.stringify(result), false));
+                        },
+                        error: function(err) {
+                            callback(err, null);
+                            // msgBulkDeleteResult(format(JSON.stringify(result), false));
+                        }
+                    });
                     return false;
                 }
-                $.ajax({
-                    type: "POST",
-                    url: deleteUrl,
-                    data: bulkBody,
-                    success: function(result) {
-                        callback(null);
-                        // msgBulkDeleteResult(format(JSON.stringify(result), false));
-                    },
-                    error: function(err) {
-                        callback(err, null);
-                        // msgBulkDeleteResult(format(JSON.stringify(result), false));
+
+                /**
+                 * 根据id数组批量删除数据
+                 */
+                function bulkDeleteByIds(deleteUrl, index, type, routing, idArr, callback) {
+                    if (!idArr || idArr.length <= 0) {
+                        callback('没有可删除的数据', null);
+                        return false;
                     }
-                });
-                return false;
-            }
-
-            /**
-             * 根据id数组批量删除数据
-             */
-            function bulkDeleteByIds(deleteUrl, index, type, routing, idArr, callback) {
-                if (!idArr || idArr.length <= 0) {
-                    callback('没有可删除的数据', null);
-                    return false;
-                }
-                var length = idArr.length;
-                var bulkBody = '';
-                for (var i = 0; i < length; i++) {
-                    if (routing) {
-                        bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '","_routing":"' + routing + '"}}\n';
-                    } else {
-                        bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '"}}\n';
+                    var length = idArr.length;
+                    var bulkBody = '';
+                    for (var i = 0; i < length; i++) {
+                        if (routing) {
+                            bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '","_routing":"' + routing + '"}}\n';
+                        } else {
+                            bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '"}}\n';
+                        }
                     }
+                    $.ajax({
+                        type: "POST",
+                        url: deleteUrl,
+                        data: bulkBody,
+                        success: function(result) {
+                            callback(null, result.items.length);
+                        },
+                        error: function(err) {
+                            callback(err, null);
+                        }
+                    });
                 }
-                $.ajax({
-                    type: "POST",
-                    url: deleteUrl,
-                    data: bulkBody,
-                    success: function(result) {
-                        callback(null, result.items.length);
-                    },
-                    error: function(err) {
-                        callback(err, null);
-                    }
-                });
-            }
 
-            /**
-             * 获取请求地址
-             * @returns {string}
-             */
-            function getHost() {
+                /**
+                 * 获取请求地址
+                 * @returns {string}
+                 */
+                function getHost() {
 
-                var protocol = window.location.protocol;
-                var hostname = window.location.hostname;
-                return protocol + "//" + hostname + ":9200";
-
-                // return 'http://192.168.30.60:9200';
-
-            }
-
-            /**
-             * 文件下载
-             * @param fileName
-             * @param content
-             */
-            function downloadFile(fileName, content, ext) {
-                var a = document.createElement('a');
-                var defaultType = {
-                    type: 'application/json'
-                };
-                if (ext) defaultType.type = ext;
-                var blob = new Blob([content], {
-                    type: defaultType
-                });
-                var url = window.URL.createObjectURL(blob);
-                a.href = url;
-                a.download = fileName;
-                a.click();
-                window.URL.revokeObjectURL(url);
-            }
-
-
-            // 格式化json
-            function format(txt, compress /*是否为压缩模式*/ ) { /* 格式化JSON源码(对象转换为JSON文本) */
-                var indentChar = '    ';
-                if (/^\s*$/.test(txt)) {
-                    alert('数据为空,无法格式化! ');
-                    return;
+                    var protocol = window.location.protocol;
+                    var hostname = $('#es-port').val() || window.location.hostname + ":9200";
+                    return protocol + "//" + hostname;
                 }
-                try {
-                    var data = eval('(' + txt + ')');
-                } catch (e) {
-                    alert('数据源语法错误,格式化失败! 错误信息: ' + e.description, 'err');
-                    return;
-                };
-                var draw = [],
-                    last = false,
-                    This = this,
-                    line = compress ? '' : '\n',
-                    nodeCount = 0,
-                    maxDepth = 0;
 
-                var notify = function(name, value, isLast, indent /*缩进*/ , formObj) {
-                    nodeCount++; /*节点计数*/
-                    for (var i = 0, tab = ''; i < indent; i++) tab += indentChar; /* 缩进HTML */
-                    tab = compress ? '' : tab; /*压缩模式忽略缩进*/
-                    maxDepth = ++indent; /*缩进递增并记录*/
-                    if (value && value.constructor == Array) { /*处理数组*/
-                        draw.push(tab + (formObj ? ('"' + name + '":') : '') + '[' + line); /*缩进'[' 然后换行*/
-                        for (var i = 0; i < value.length; i++)
-                            notify(i, value[i], i == value.length - 1, indent, false);
-                        draw.push(tab + ']' + (isLast ? line : (',' + line))); /*缩进']'换行,若非尾元素则添加逗号*/
-                    } else if (value && typeof value == 'object') { /*处理对象*/
-                        draw.push(tab + (formObj ? ('"' + name + '":') : '') + '{' + line); /*缩进'{' 然后换行*/
-                        var len = 0,
-                            i = 0;
-                        for (var key in value) len++;
-                        for (var key in value) notify(key, value[key], ++i == len, indent, true);
-                        draw.push(tab + '}' + (isLast ? line : (',' + line))); /*缩进'}'换行,若非尾元素则添加逗号*/
-                    } else {
-                        if (typeof value == 'string') value = '"' + value + '"';
-                        draw.push(tab + (formObj ? ('"' + name + '":') : '') + value + (isLast ? '' : ',') + line);
+                /**
+                 * 文件下载
+                 * @param fileName
+                 * @param content
+                 */
+                function downloadFile(fileName, content, ext) {
+                    var a = document.createElement('a');
+                    var defaultType = {
+                        type: 'application/json'
                     };
-                };
-                var isLast = true,
-                    indent = 0;
-                notify('', data, isLast, indent, false);
-                return draw.join('');
+                    if (ext) defaultType.type = ext;
+                    var blob = new Blob([content], {
+                        type: defaultType
+                    });
+                    var url = window.URL.createObjectURL(blob);
+                    a.href = url;
+                    a.download = fileName;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+
+
+                // 格式化json
+                function format(txt, compress /*是否为压缩模式*/ ) { /* 格式化JSON源码(对象转换为JSON文本) */
+                    var indentChar = '    ';
+                    if (/^\s*$/.test(txt)) {
+                        alert('数据为空,无法格式化! ');
+                        return;
+                    }
+                    try {
+                        var data = eval('(' + txt + ')');
+                    } catch (e) {
+                        alert('数据源语法错误,格式化失败! 错误信息: ' + e.description, 'err');
+                        return;
+                    };
+                    var draw = [],
+                        last = false,
+                        This = this,
+                        line = compress ? '' : '\n',
+                        nodeCount = 0,
+                        maxDepth = 0;
+
+                    var notify = function(name, value, isLast, indent /*缩进*/ , formObj) {
+                        nodeCount++; /*节点计数*/
+                        for (var i = 0, tab = ''; i < indent; i++) tab += indentChar; /* 缩进HTML */
+                        tab = compress ? '' : tab; /*压缩模式忽略缩进*/
+                        maxDepth = ++indent; /*缩进递增并记录*/
+                        if (value && value.constructor == Array) { /*处理数组*/
+                            draw.push(tab + (formObj ? ('"' + name + '":') : '') + '[' + line); /*缩进'[' 然后换行*/
+                            for (var i = 0; i < value.length; i++)
+                                notify(i, value[i], i == value.length - 1, indent, false);
+                            draw.push(tab + ']' + (isLast ? line : (',' + line))); /*缩进']'换行,若非尾元素则添加逗号*/
+                        } else if (value && typeof value == 'object') { /*处理对象*/
+                            draw.push(tab + (formObj ? ('"' + name + '":') : '') + '{' + line); /*缩进'{' 然后换行*/
+                            var len = 0,
+                                i = 0;
+                            for (var key in value) len++;
+                            for (var key in value) notify(key, value[key], ++i == len, indent, true);
+                            draw.push(tab + '}' + (isLast ? line : (',' + line))); /*缩进'}'换行,若非尾元素则添加逗号*/
+                        } else {
+                            if (typeof value == 'string') value = '"' + value + '"';
+                            draw.push(tab + (formObj ? ('"' + name + '":') : '') + value + (isLast ? '' : ',') + line);
+                        };
+                    };
+                    var isLast = true,
+                        indent = 0;
+                    notify('', data, isLast, indent, false);
+                    return draw.join('');
+                }
             }
         </script>
 </body>

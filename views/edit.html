@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Bootstrap -->
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+      <![endif]-->
+    <title>Document</title>
+    <style>
+        body {
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+        
+        .toolFrame {
+            border: 1px #efefef solid;
+            padding: 5px;
+        }
+        
+        .execResult {
+            margin-top: 15px;
+            border: 1px #efefef solid;
+            padding: 5px;
+            word-break: break-all;
+            word-wrap: break-word;
+            overflow-y: auto;
+            user-select: text;
+            -moz-user-select: text;
+            -webkit-user-select: text;
+            -ms-user-select: text;
+        }
+        
+        .import-btn {
+            margin-top: 20px;
+        }
+        
+        #exportSelectGroupN {
+            border: 1px #efefef solid;
+            max-height: 400px;
+            padding-left: 10px;
+            overflow-y: auto;
+        }
+        
+        .margin-top {
+            margin-top: 20px;
+        }
+        
+        .icon-lg {
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <h1>Elasticsearch实用工具集</h1>
+
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation"><a href="#dataEdit" role="tab" data-toggle="tab">修改数据</a></li>
+
+        </ul>
+
+        <div class="tab-content">
+            <!-- 数据修改 -->
+            <div role="tabpanel" class="tab-pane" id="dataEdit">
+                <div class="toolWrapper row">
+                    <div id="exportTool" class="toolFrame col-xs-12 col-md-8">
+                        <h2>数据更新</h2>
+                        <form class="form">
+                            <div class="input-group">
+                                <span class="input-group-addon">id</span>
+                                <input type="text" class="form-control" id="editIdUpdate">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" id="editSearchBtn" type="button">查询</button>
+                                </span>
+                            </div>
+                            <input type="hidden" id="editIndexUpdate" />
+                            <input type="hidden" id="editTypeUpdate" />
+                            <div id="edit-field-form">
+                                <div class="input-group margin-top">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle edit-field-name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    字段名<span class="caret"></span></button>
+                                        <ul class="dropdown-menu edit-field-name-arr">
+                                            <li><a href="#">字段名</a></li>
+                                        </ul>
+                                    </div>
+                                    <input type="text" class="form-control edit-field-value" placeholder="请填写对应修改值">
+                                </div>
+                            </div>
+                        </form>
+                        <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top"></span>
+                        <div class="margin-top">
+                            <button type="submit" id="editDataBtn" class="btn btn-default">修改</button>
+                        </div>
+
+                        <div>
+                            <textarea id="editResult" cols="50" class="execResult"> </textarea>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        $(function() {
+            setHeight();
+
+            // 数据查询
+            $('#editSearchBtn').on('click', function() {
+                const id = $('#editIdUpdate').val();
+                const host2 = 'http://127.0.0.1:9200';
+                var searchUrl = host2 + "/_search";
+                var param = {
+                    "query": {
+                        "term": {
+                            "_id": id
+                        }
+                    },
+                    "size": 1
+                }
+                $.ajax({
+                    type: "POST",
+                    url: searchUrl,
+                    contentType: 'application/json',
+                    data: JSON.stringify(param),
+                    success: function(result) {
+                        if (result.hits.total > 0) {
+                            let data = result.hits.hits[0];
+                            let source = data._source;
+                            var updateObj = {};
+                            $('#editTypeUpdate').val(data._type);
+                            $('#editIndexUpdate').val(data._index);
+                            var first_div = $('#edit-field-form').children(':first');
+                            var sourceArr = [];
+                            first_div.find('.edit-field-name-arr').html('');
+                            Object.keys(source).forEach(function(e) {
+                                if (!u_name) {
+                                    let tmp = e + ' ';
+                                    u_name = tmp + '<span class = "caret" > </span>';
+                                }
+                                first_div.find('.edit-field-name-arr').append('<li><a href="#">' + e + '</a></li>')
+                                sourceArr.push(e);
+                            });
+                            var u_name = sourceArr[0] + '<span class="caret"></span>'
+                            first_div.find('.edit-field-name').html(u_name);
+
+
+                        } else {
+                            console.log('没有数据');
+                        }
+                        console.log(JSON.stringify(result));
+
+
+                    },
+                    error: function(result) {
+                        console.log(result);
+                    }
+                });
+            });
+
+
+
+            $('#edit-add-field').on('click', function() {
+                var first = $('#edit-field-form').children(':first').clone();
+                first.find('.edit-field-value').val('');
+                $('#edit-field-form').append(first);
+            });
+
+            $('#edit-field-form').on('click', '.edit-field-name-arr li', function(e) {
+                var _this = $(this);
+                var value = e.target.text + ' ';
+                _this.parent().siblings('.edit-field-name').html(value + '<span class = "caret" > </span>');
+            });
+
+
+
+            $('#editDataBtn').on('click', function() {
+                const host2 = 'http://127.0.0.1:9200';
+                const id = $('#editIdUpdate').val();
+                const type = $('#editTypeUpdate').val() + '/'
+                const index = $('#editIndexUpdate').val() + '/';
+                let updateUrl = host2 + '/' + index + type + id + '/_update';
+                let updateObj = {};
+                let paramDivs = $('#edit-field-form').children();
+                let len = paramDivs.length;
+                for (let i = 0; i < len; i++) {
+                    let eachdiv = $(paramDivs.get(i));
+                    let name = eachdiv.find('.edit-field-name').text().trim();
+                    let value = eachdiv.find('.edit-field-value').val().trim();
+                    updateObj[name] = value;
+                }
+                let u_param = {
+                    "doc": updateObj
+                }
+                $.ajax({
+                    type: 'post',
+                    url: updateUrl,
+                    contentType: 'application/json',
+                    data: JSON.stringify(u_param),
+                    success: function(res) {
+                        console.log(res);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                })
+            });
+
+
+
+
+
+
+
+
+
+
+
+        });
+
+        function setHeight() {
+            var th = $(window).height() - 69 - 41 - 5;
+            $(".toolWrapper").height(Math.max(th, 755));
+            $(".toolFrame").height($(".toolWrapper").height() - 12);
+
+
+            // type export
+            $("#exportResult").height($(".toolFrame").height() - 356 + 75);
+            $("#importResult").height($(".toolFrame").height() - 356 + 75);
+
+            $("#bulkDeleteResult").height($(".toolFrame").height() - 356 + 75 - 74 * 3);
+
+
+        }
+    </script>
+
+</body>
+
+</html>

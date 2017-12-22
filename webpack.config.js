@@ -8,7 +8,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, './static'),
-    publicPath: 'static/',
+    publicPath: './static/',
     filename: '[name].[hash].js'
   },
   externals: {

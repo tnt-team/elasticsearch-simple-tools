@@ -99,7 +99,7 @@ module.exports = function(grunt) {
 		watch: {
 			app: {
 				files: ["src/**/*"],
-				tasks: ["webpack:build-dev", "copy:dev"],
+				tasks: ["clean", "copy:build", "webpack:build-dev", "copy:dev"],
 				options: {
 					spawn: false,
 				}
@@ -116,7 +116,7 @@ module.exports = function(grunt) {
     });
 
 	// The development server (the recommended option for development)
-	grunt.registerTask("default", ["webpack-dev-server:start"]);
+	// grunt.registerTask("default", ["webpack-dev-server:start"]);
 
 	// Build and watch cycle (another option for development)
 	// Advantage: No server required, can run app from filesystem

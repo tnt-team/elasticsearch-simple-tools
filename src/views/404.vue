@@ -1,6 +1,6 @@
 <template>
   <div id="404" class="page-container">
-    <p class="info404">404: 页面没有找到！</p>
+    <p class="info404">404: 模块没有找到！</p>
   </div>
 </template>
 

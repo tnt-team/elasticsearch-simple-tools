@@ -99,7 +99,7 @@ module.exports = function(grunt) {
 		watch: {
 			app: {
 				files: ["src/**/*"],
-				tasks: ["webpack:build-dev"],
+				tasks: ["webpack:build-dev", "copy:dev"],
 				options: {
 					spawn: false,
 				}

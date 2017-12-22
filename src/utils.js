@@ -22,7 +22,7 @@ exports.fetchState = () => {
         $.ajax({
             type: "GET",
             url: url,
-            success: data => {
+            success(data) {
                 if (typeof data.metadata !== 'object') {
                     console.error('fetchState error: data not correct!');
                     reject('fetchState error: data not correct!');
@@ -40,7 +40,7 @@ exports.fetchState = () => {
                 console.log(indices);
                 resolve(indices);
             },
-            error: err => {
+            error(err) {
                 console.error('fetchState error: ', err);
                 reject(err);
             }

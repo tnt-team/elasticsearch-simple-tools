@@ -98,12 +98,12 @@ export default {
                 url: exportUrl,
                 data: '{"from":0,"size":10000,"query":{"bool":{"must":[' + routingQurey + '],"must_not":[],' +
                 '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
-                success: function(result) {
+                success(result) {
                     let json = utils.format(JSON.stringify(result), false);
                     that.message = json;
                 },
-                error: function(result) {
-                    that.message = JSON.stringify(result);
+                error(err) {
+                    that.message = JSON.stringify(err);
                 }
             });
         },

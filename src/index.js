@@ -6,12 +6,12 @@ import Router from 'vue-router';
 // install router
 Vue.use(Router);
 
-Vue.config.errorHandler = function (err) {
-  console.error(err.message + ' ' + err.stack);
+Vue.config.errorHandler = function(err, vm) {
+    console.error(err.message + ' ' + err.stack);
 };
 
 // routing
-let router = new Router({linkActiveClass:'active'});
+let router = new Router({ linkActiveClass: 'active' });
 
 router.map({
     '/': {
@@ -23,13 +23,20 @@ router.map({
         component: require('./views/typeExport.vue')
     },
     '/dataImport': {
-        name:'dataImport',
-        component:require('./views/DataImport.vue')
+        name: 'dataImport',
+        component: require('./views/DataImport.vue')
     },
-    '/dataMigration':{
-        name:'dataMigration',
-        component:require('./views/DataMigration.vue')
+    '/dataMigration': {
+        name: 'dataMigration',
+        component: require('./views/DataMigration.vue')
     },
+    '/bulkDelete': {
+        name: 'bulkDelete',
+        component: require('./views/bulkDelete.vue')
+    },
+    /*'*': {
+      component: require('./views/404.vue')
+    }*/
     '*': {
         component: require('./views/404.vue')
     }

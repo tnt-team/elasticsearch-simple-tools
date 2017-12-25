@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 import Vue from 'vue';
 import Router from 'vue-router';
@@ -6,7 +6,7 @@ import Router from 'vue-router';
 // install router
 Vue.use(Router);
 
-Vue.config.errorHandler = function (err, vm) {
+Vue.config.errorHandler = function (err) {
   console.error(err.message + ' ' + err.stack);
 };
 
@@ -22,9 +22,6 @@ router.map({
     name: 'index',
     component: require('./views/typeExport.vue')
   },
-  /*'*': {
-    component: require('./views/404.vue')
-  }*/
   '*': {
       component: require('./views/404.vue')
   }

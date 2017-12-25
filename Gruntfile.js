@@ -1,8 +1,8 @@
 module.exports = function(grunt) {
 
 	require("matchdep").filterAll("grunt-*").forEach(grunt.loadNpmTasks);
-	var webpack = require("webpack");
-	var webpackConfig = require("./webpack.config.js");
+	const webpack = require("webpack");
+    const webpackConfig = require("./webpack.config.js");
 
 	grunt.config.init({
 		clean: {
@@ -57,7 +57,35 @@ module.exports = function(grunt) {
 						dest: ''
 					}
 				],
-			}
+			},
+            releaseDev: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'static/images/',
+                        src: ['**'],
+                        dest: 'dist/static/images/'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'static/',
+                        src: ['*.js'],
+                        dest: 'dist/static/'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'static/',
+                        src: ['*.map'],
+                        dest: 'dist/static/'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'static/',
+                        src: ['index.html'],
+                        dest: 'dist/'
+                    }
+                ],
+            }
 		},
 		webpack: {
 			options: webpackConfig,
@@ -123,6 +151,8 @@ module.exports = function(grunt) {
 	// Disadvantage: Requests are not blocked until bundle is available,
 	//               can serve an old app on too fast refresh
 	grunt.registerTask("dev", ["clean", "copy:build", "webpack:build-dev", "copy:dev", "connect", "watch:app"]);
+    // build for remote server dev
+    grunt.registerTask("build-dev", ["clean", "copy:build", "webpack:build-dev", "copy:releaseDev"]);
 
 	// Production build
 	grunt.registerTask("build", ["clean", "copy:build", "webpack:build", "copy:release"]);

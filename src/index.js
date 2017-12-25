@@ -11,24 +11,32 @@ Vue.config.errorHandler = function (err) {
 };
 
 // routing
-let router = new Router();
+let router = new Router({linkActiveClass:'active'});
 
 router.map({
-  '/': {
-    name: 'index',
-    component: require('./views/typeExport.vue')
-  },
-  '/typeExport': {
-    name: 'index',
-    component: require('./views/typeExport.vue')
-  },
-  '*': {
-      component: require('./views/404.vue')
-  }
+    '/': {
+        name: 'index',
+        component: require('./views/typeExport.vue')
+    },
+    '/typeExport': {
+        name: 'index',
+        component: require('./views/typeExport.vue')
+    },
+    '/dataImport': {
+        name:'dataImport',
+        component:require('./views/DataImport.vue')
+    },
+    '/dataMigration':{
+        name:'dataMigration',
+        component:require('./views/DataMigration.vue')
+    },
+    '*': {
+        component: require('./views/404.vue')
+    }
 });
 
 router.beforeEach(() => {
-  window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
 });
 
 router.start(require('./main.vue'), '#app');

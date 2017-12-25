@@ -14,7 +14,7 @@
                     <label for="exportType">type</label>
                     <div class="form-group">
                         <select id="exportType" class="form-control" v-model="type">
-                            <option v-for="type in types" value="{{type}}">{{ type }}</option>
+                            <option v-for="tp in types" value="{{tp}}">{{ tp }}</option>
                         </select>
                     </div>
                 </div>
@@ -99,8 +99,7 @@ export default {
                 data: '{"from":0,"size":10000,"query":{"bool":{"must":[' + routingQurey + '],"must_not":[],' +
                 '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
                 success(result) {
-                    let json = utils.format(JSON.stringify(result), false);
-                    that.message = json;
+                    that.message = utils.format(JSON.stringify(result), false);
                 },
                 error(err) {
                     that.message = JSON.stringify(err);

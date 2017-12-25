@@ -6,8 +6,8 @@ import Router from 'vue-router';
 // install router
 Vue.use(Router);
 
-Vue.config.errorHandler = function (err, vm) {
-    console.error(err.message + ' ' + err.stack);
+Vue.config.errorHandler = function (err) {
+  console.error(err.message + ' ' + err.stack);
 };
 
 // routing
@@ -22,9 +22,6 @@ router.map({
         name: 'index',
         component: require('./views/typeExport.vue')
     },
-    '*': {
-        component: require('./views/404.vue')
-    },
     '/dataImport': {
         name:'dataImport',
         component:require('./views/DataImport.vue')
@@ -33,6 +30,9 @@ router.map({
         name:'dataMigration',
         component:require('./views/DataMigration.vue')
     },
+    '*': {
+        component: require('./views/404.vue')
+    }
 });
 
 router.beforeEach(() => {

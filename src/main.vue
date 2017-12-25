@@ -25,6 +25,7 @@ import utils from './utils';
 
 export default {
     created() {
+        // 获取es索引信息，成功触发dataReady事件，需要用es索引信息的地方需要监听此事件
         utils.fetchState().then(() => {
             $(document).triggerHandler('dataReady');
         }).catch((reason) => {

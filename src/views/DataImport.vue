@@ -4,10 +4,13 @@
             <div role="form">
                 <div class="form-group">
                     <label for="">请在此填入数据</label>
-                    <textarea class="form-control" rows="4" placeholder="data"></textarea>
+                    <textarea class="form-control" rows="10" placeholder="data"></textarea>
                 </div>
             </div>
             <button type="button" class="btn btn-default">开始导入</button>
+            <div class="result-panel panel panel-default">
+                <div id="exportResult" class="execResult panel-body">{{ message }}</div>
+            </div>
         </div>
         <div class="page-content col-xs-3">
             <h3>usage:</h3>
@@ -26,6 +29,8 @@
     }
 </script>
 <style scoped>
-
-
+    textarea{
+        width: 100%;
+        resize: none;
+    }
 </style>

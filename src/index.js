@@ -43,6 +43,10 @@ router.map({
     },
     '*': {
         component: require('./views/404.vue')
+    },
+    '/flyway': {
+        name: 'flyway',
+        component: require('./views/flyway.vue')
     }
 });
 

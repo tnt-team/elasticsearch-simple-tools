@@ -6,7 +6,7 @@ import Router from 'vue-router';
 // install router
 Vue.use(Router);
 
-Vue.config.errorHandler = function (err, vm) {
+Vue.config.errorHandler = function(err, vm) {
     console.error(err.message + ' ' + err.stack);
 };
 
@@ -26,13 +26,24 @@ router.map({
         component: require('./views/404.vue')
     },
     '/dataImport': {
-        name:'dataImport',
-        component:require('./views/DataImport.vue')
+        name: 'dataImport',
+        component: require('./views/DataImport.vue')
     },
-    '/dataMigration':{
-        name:'dataMigration',
-        component:require('./views/DataMigration.vue')
+    '/dataMigration': {
+        name: 'dataMigration',
+        component: require('./views/DataMigration.vue')
     },
+    '/bulkDelete': {
+        name: 'bulkDelete',
+        component: require('./views/bulkDelete.vue')
+    },
+    '/dataEdit': {
+        name: 'dataEdit',
+        component: require('./views/dataEdit.vue')
+    },
+    '*': {
+        component: require('./views/404.vue')
+    }
 });
 
 router.beforeEach(() => {

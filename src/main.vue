@@ -6,10 +6,11 @@
             <li role="presentation" v-link="{name: 'index'}"><a href="#" >数据查询与导出</a></li>
             <li role="presentation" v-link="{name:'dataImport'}"><a href="#" >数据导入</a></li>
             <li role="presentation" v-link="{name:'dataMigration'}"><a href="#">数据迁移</a></li>
-            <li role="presentation"><a href="#">批量删除</a></li>
+            <li role="presentation" v-link="{name:'bulkDelete'}"><a href="#" >批量删除</a></li>
             <li role="presentation"><a href="#">flyway删除</a></li>
             <li role="presentation"><a href="#">删除路由</a></li>
             <li role="presentation"><a href="#">数据导出·新</a></li>
+            <li role="presentation" v-link="{name:'dataEdit'}"><a href="#">数据查询与修改</a></li>
         </ul>
 
         <div class="main-panel panel panel-default">
@@ -25,6 +26,7 @@ import utils from './utils';
 
 export default {
     created() {
+        // 获取es索引信息，成功触发dataReady事件，需要用es索引信息的地方需要监听此事件
         utils.fetchState().then(() => {
             $(document).triggerHandler('dataReady');
         }).catch((reason) => {

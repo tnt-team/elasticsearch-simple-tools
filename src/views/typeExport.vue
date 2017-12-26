@@ -61,7 +61,29 @@ export default {
             }
         }
     },
+    attached() {
+        // 视图渲染之后需要处理索引select的显示
+        let indexDict = utils.getState();
+        if (indexDict) {
+            this.indexDict = indexDict;
+
+            let indices = [];
+            Object.keys(this.indexDict).forEach(index => {
+                indices.push(index);
+            });
+            this.indices = indices;
+            if (this.indices.length > 0) {
+                this.index = this.indices[0];
+                this.types = this.indexDict[this.index];
+
+                if (this.types.length > 0) {
+                    this.type = this.types[0];
+                }
+            }
+        }
+    },
     ready() {
+        // 索引数据加载好之后处理索引select显示
         $(document).on('dataReady', () => {
             this.indexDict = utils.getState();
             console.log('dataReady', this.indexDict);

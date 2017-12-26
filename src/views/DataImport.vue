@@ -31,7 +31,6 @@
                 bulkBody:'',
                 types:[],
                 indexDict:{},
-
             }
         },
         methods: {
@@ -50,7 +49,6 @@
                 } else if (typeof importDataObj.hits === "object" && importDataObj.hits instanceof Array) {
                     dataBody = importDataObj.hits;
                 }
-//                let bulkBody = "";
                 let i, dataItem, dataItemId, dataItemIndex, dataItemType, dataItemRouting, dataItemSource;
                 for (i = 0; i < dataBody.length; i++) {
                     dataItem = dataBody[i];

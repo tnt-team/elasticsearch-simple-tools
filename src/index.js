@@ -14,10 +14,6 @@ Vue.config.errorHandler = function(err, vm) {
 let router = new Router({linkActiveClass:'active'});
 
 router.map({
-    '/': {
-        name: 'index',
-        component: require('./views/typeExport.vue')
-    },
     '/typeExport': {
         name: 'index',
         component: require('./views/typeExport.vue')
@@ -40,9 +36,6 @@ router.map({
     '/dataEdit': {
         name: 'dataEdit',
         component: require('./views/dataEdit.vue')
-    },
-    '*': {
-        component: require('./views/404.vue')
     },
     '/flyway': {
         name: 'flyway',

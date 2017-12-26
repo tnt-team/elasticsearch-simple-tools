@@ -1,76 +1,80 @@
 <template>
-    <div id="bulkDelete" class="page-container">
-        <div id="bulkDeleteTool" class="toolFrame col-xs-12 col-md-6">
-            <h2>数据查询</h2>
-            <form id="bulkDeleteForm" role="form">
-                <div class="input-group">
-                    <span class="input-group-addon">index</span>
-                    <select class="form-control _index" id="dataSearchIndex" v-model="index">
-                        <option v-for="index in indices" value="{{index}}">{{ index }}</option>
-                    </select>
-                </div>
-                <div class="input-group margin-top">
-                    <span class="input-group-addon">id</span>
-                    <input type="text" class="form-control" v-model="dataId" id="editIdUpdate">
-                </div>
-                <div class="input-group margin-top">
-                    <span class="input-group-addon">routing</span>
-                    <input type="text" class="form-control" v-model="routing" id="editIdUpdate">
-                </div>
-                <div class="form-search-field" v-for="item in searchFields">
-                    <div class="form-inline margin-top">
-                        <div class="form-group">
-                            <input type="text" class="form-control" v-model="item.name" placeholder="{{item.tip}}">
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control" v-model="item.value" placeholder="{{item.tipValue}}">
-                        </div>
-                        <span id="edit-add-field" class="glyphicon glyphicon-minus icon-lg" v-on:click="subSearchField($index)"></span>
-                    </div>
-                </div>
-                <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" v-on:click="addSearchField"></span>
-                <div>
-                    <button class="btn btn-default margin-top" @click="onSearch">查询</button>
-                </div>
-            </form>
-            <div class="result-panel panel panel-default">
-                <div id="exportResult" class="execResult panel-body">{{message}}</div>
-            </div>
+  <div id="bulkDelete" class="page-container">
+    <div id="bulkDeleteTool" class="toolFrame col-xs-12 col-md-6">
+      <h2>数据查询</h2>
+      <form id="bulkDeleteForm" role="form">
+        <div class="input-group">
+          <span class="input-group-addon">index</span>
+          <select class="form-control _index" id="dataSearchIndex" v-model="index">
+            <option v-for="index in indices" value="{{index}}">{{ index }}</option>
+          </select>
         </div>
-        <div class="page-content col-xs-12 col-md-6">
-            <h2>数据修改</h2>
-            <!-- 数据修改 -->
-            <form class="form">
-                <input type="hidden" id="editIndexUpdate" />
-                <input type="hidden" id="editTypeUpdate" />
-                <div id="form-edit-field" v-for="item in editFields">
-                    <div class="input-group margin-top">
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-default dropdown-toggle edit-field-name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{item.tip}}
-                                <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li v-for="i in fields" v-model="item.name" value="{{i}}">
-                                    <a href="#">{{i}}</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <input type="text" class="form-control edit-field-value" v-model="item.value" placeholder="请填写对应修改值">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">删除</button>
-                        </span>
-                    </div>
-                </div>
-            </form>
-            <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" @click="addEditField"></span>
-            <div class="margin-top">
-                <button type="submit" id="editDataBtn" class="btn btn-default">修改</button>
-            </div>
-            <div>
-                <textarea id="editResult" cols="50" class="execResult"> </textarea>
-            </div>
+        <div class="input-group margin-top">
+          <span class="input-group-addon">id</span>
+          <input type="text" class="form-control" v-model="dataId" id="editIdUpdate">
         </div>
+        <div class="input-group margin-top">
+          <span class="input-group-addon">routing</span>
+          <input type="text" class="form-control" v-model="routing" id="editIdUpdate">
+        </div>
+        <div class="form-search-field" v-for="item in searchFields">
+          <div class="form-inline margin-top">
+            <div class="form-group">
+              <input type="text" class="form-control" v-model="item.name" placeholder="{{item.tip}}">
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" v-model="item.value" placeholder="{{item.tipValue}}">
+            </div>
+            <span id="edit-add-field" class="glyphicon glyphicon-minus icon-lg" v-on:click="subSearchField($index)"></span>
+          </div>
+        </div>
+        <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" v-on:click="addSearchField"></span>
+        <div>
+          <button class="btn btn-default margin-top" @click="onSearch">查询</button>
+        </div>
+      </form>
+      <div class="panel panel-default margin-top">
+        <div class="panel-heading">输出结果</div>
+        <div class="panel-body">
+          {{message}}
+        </div>
+      </div>
+    </div>
+    <div class="page-content col-xs-12 col-md-6">
+      <h2>数据修改</h2>
+      <form class="form">
+        <input type="hidden" id="editIndexUpdate" />
+        <input type="hidden" id="editTypeUpdate" />
+        <div id="form-edit-field" v-for="it in editFields">
+          <div class="input-group margin-top">
+            <div class="input-group-btn">
+              <button type="button" class="btn btn-default dropdown-toggle edit-field-name" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{it.tip}}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li value="{{it.name}}" :value="fn" v-for="fn in fieldNames">
+                  <a>{{fn}}</a>
+                </li>
+              </ul>
+            </div>
+            <input type="text" class="form-control edit-field-value" v-model="it.value" placeholder="请填写对应修改值">
+            <span class="input-group-btn">
+              <button class="btn btn-default" @click="subEditField" type="button">删除</button>
+            </span>
+          </div>
+        </div>
+      </form>
+      <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" @click="addEditField"></span>
+      <div class="margin-top">
+        <button type="submit" id="editDataBtn" class="btn btn-default">修改</button>
+      </div>
+      <div class="panel panel-default margin-top">
+        <div class="panel-heading">输出结果</div>
+        <div class="panel-body">
+          {{updateMsg}}
+        </div>
+      </div>
 
     </div>
 
@@ -84,17 +88,35 @@ export default {
       indexDict: {},
       indices: [],
       message: "",
-      // form data
+      updateMsg: "",
       index: "",
       routing: "",
       dataId: "",
       searchFields: [
         { name: "", value: "", tip: "请输入字段名", tipValue: "请输入字段值" }
       ],
-      eidtFields: [{ name: "", value: "", tip: "请输入字段名", tipValue: "请输入字段值" }]
+      editFields: [{ name: "请输入字段名", value: "", tip: "请输入字段名" }],
+      fieldNames: ["请输入字段名"]
     };
   },
   watch: {},
+
+  attached() {
+    // 视图渲染之后需要处理索引select的显示
+    let indexDict = utils.getState();
+    if (indexDict) {
+      this.indexDict = indexDict;
+
+      let indices = [];
+      Object.keys(this.indexDict).forEach(index => {
+        indices.push(index);
+      });
+      this.indices = indices;
+      if (this.indices.length > 0) {
+        this.index = this.indices[0];
+      }
+    }
+  },
   ready() {
     $(document).on("dataReady", () => {
       this.indexDict = utils.getState();
@@ -104,6 +126,9 @@ export default {
         indices.push(index);
       });
       this.indices = indices;
+      if (this.indices.length > 0) {
+        this.index = this.indices[0];
+      }
     });
   },
   methods: {
@@ -118,11 +143,14 @@ export default {
       this.searchFields.splice(index, 1);
     },
     addEditField() {
-      this.eidtFields.push({
+      this.editFields.push({
         name: "",
         value: "",
         tip: "请输入字段名"
       });
+    },
+    subEditField(index) {
+      this.editFields.splice(index, 1);
     },
     onSearch() {
       let index = this.index;
@@ -176,7 +204,13 @@ export default {
         url: searchUrl,
         data: paramJson,
         success: result => {
+          let fieldArr = [];
           _this.message = utils.format(JSON.stringify(result), false);
+          let fields = result.hits.hits[0]._source;
+          Object.keys(fields).forEach(function(f) {
+            fieldArr.push(f);
+          });
+          this.fieldNames = fieldArr;
         },
         error: err => {
           _this.message = utils.format(JSON.stringify(err), false);
@@ -187,6 +221,13 @@ export default {
 };
 </script>
 <style scoped>
+.panel {
+  user-select: text;
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+}
+
 .margin-top {
   margin-top: 20px;
 }

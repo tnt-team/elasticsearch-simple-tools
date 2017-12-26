@@ -34,9 +34,10 @@ router.map({
         name: 'bulkDelete',
         component: require('./views/bulkDelete.vue')
     },
-    /*'*': {
-      component: require('./views/404.vue')
-    }*/
+    '/dataEdit': {
+        name: 'dataEdit',
+        component: require('./views/dataEdit.vue')
+    },
     '*': {
         component: require('./views/404.vue')
     }

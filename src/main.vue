@@ -10,6 +10,7 @@
             <li role="presentation"><a href="#">flyway删除</a></li>
             <li role="presentation"><a href="#">删除路由</a></li>
             <li role="presentation"><a href="#">数据导出·新</a></li>
+            <li role="presentation" v-link="{name:'dataEdit'}"><a href="#">数据查询与修改</a></li>
         </ul>
 
         <div class="main-panel panel panel-default">

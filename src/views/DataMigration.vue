@@ -1,20 +1,20 @@
 <template>
     <div class="page-container col-xs-12">
         <div class="page-content col-xs-9">
-            <div role="form">
+            <div role="form" id="upgradeForm">
                 <div class="form-group">
                     <label for="upgradeFromIndex">起始索引</label>
                     <div class="form-group">
-                        <select id="upgradeFromIndex" name="" class="form-control" v-model="index">
-                            <option v-for="indexBegin in indices" value="{{index}}">{{ indexBegin }}</option>
+                        <select id="upgradeFromIndex" class="form-control" v-model="indexBeg">
+                            <option v-for="indexBegin in indices" value="{{indexBegin}}">{{ indexBegin }}</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="upgradeToIndex">目标索引</label>
                     <div>
-                        <select id="upgradeToIndex" name="" class="form-control" v-model="index">
-                            <option v-for="indexEnd in indices" value="{{index}}">{{ indexEnd }}</option>
+                        <select id="upgradeToIndex" class="form-control" v-model="indexEd">
+                            <option v-for="indexEnd in indices" value="{{indexEnd}}">{{ indexEnd }}</option>
                         </select>
                     </div>
                 </div>
@@ -40,7 +40,8 @@
         data(){
             return {
                 indices:[],
-                index:'',
+                indexBeg:'',
+                indexEd:'',
                 types:[],
                 message:'',
                 type:'',
@@ -49,8 +50,14 @@
         },
 
         watch:{
-            index(val){
-                this.types=this.indexDict[val];
+            indexBeg(valBeg){
+                this.types=this.indexDict[valBeg];
+                if(this.types.length>0){
+                    this.type=this.types[0]
+                }
+            },
+            indexEd(valEd){
+                this.types=this.indexDict[valEd];
                 if(this.types.length>0){
                     this.type=this.types[0]
                 }
@@ -68,6 +75,8 @@
                     indices.push(index);
                 });
                 this.indices = indices;
+                this.indexBeg = indices[0];
+                this.indexEd = indices[0];
                 if (this.indices.length > 0) {
                     this.index = this.indices[0];
                     this.types = this.indexDict[this.index];
@@ -84,6 +93,7 @@
             moveData(){
                 let upgradeFromIndex = $("#upgradeFromIndex").val().trim();
                 let upgradeToIndex = $("#upgradeToIndex").val().trim();
+                $("#upgradeResult").html("准备升级...");
                 if (!upgradeFromIndex || !upgradeToIndex) {
                     $("#upgradeResult").html("参数为空");
                     return false;
@@ -170,9 +180,6 @@
                                 $("#upgradeResult").html("需要升级总数：" + totalHits + "    已升级：" + 0);
                             }
                             if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
-                                // console.log('ret5');
-                                // console.log(result.hits.hits.slice(0, 5));
-                                // exportResult.hits = exportResult.hits.concat(result.hits.hits);
                                 upgradeQuery(result);
                             }
                             if (totalFrom + 10000 < totalHits) {

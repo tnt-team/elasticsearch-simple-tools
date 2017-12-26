@@ -21,7 +21,7 @@
                 <button type="button" class="btn btn-default" @click="moveData">开始迁移</button>
                 <div class="result-panel panel panel-default">
                     <div id="upgradeResult" class="execResult panel-body">
-
+                        {{msg}}
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                 indexBeg:'',
                 indexEd:'',
                 types:[],
-                message:'',
+                msg:'',
                 type:'',
                 indexDict:{}
             }
@@ -91,11 +91,13 @@
 
         methods: {
             moveData(){
-                let upgradeFromIndex = $("#upgradeFromIndex").val().trim();
-                let upgradeToIndex = $("#upgradeToIndex").val().trim();
-                $("#upgradeResult").html("准备升级...");
+                let upgradeFromIndex = this.indexBeg.trim();
+                let upgradeToIndex = this.indexEd.trim();
+                let that=this;
+
+                this.msg="准备升级...";
                 if (!upgradeFromIndex || !upgradeToIndex) {
-                    $("#upgradeResult").html("参数为空");
+                    this.msg="参数为空";
                     return false;
                 }
 
@@ -120,11 +122,10 @@
                             dataItemSource = dataItem._source;
 
                             if (dataItemRouting) {
-                                bulkBody += '{"index":{"_index":"' + dataItemIndex + '","_type":"' + dataItemType + '","_id":"' +
-                                    dataItemId + '","_routing":"' + dataItemRouting + '"}}\n';
+                                bulkBody=`{"index":{"_index":"${dataItemIndex}","_type":"${dataItemType}","_id":"${dataItemId}","_routing":"${dataItemRouting}"}}\n`;
                             } else {
-                                bulkBody += '{"index":{"_index":"' + dataItemIndex + '","_type":"' + dataItemType + '","_id":"' +
-                                    dataItemId + '"}}\n';
+                                bulkBody=`{"index":{"_index":"${dataItemIndex}","_type":"${dataItemType}","_id":"${dataItemId}"}}\n`;
+
                             }
                             bulkBody += JSON.stringify(dataItemSource) + '\n';
                         }
@@ -136,8 +137,8 @@
                             data: bulkBody,
                             success: function(result) {
                                 totalSucc += dataBody.length;
-                                $("#upgradeResult").html("需要升级总数：" + totalHits + "    已升级：" + totalSucc);
-                                if (errMsg.length > 0) $("#upgradeResult").html("升级中发生错误：" + errMsg + "    需要升级总数：" + totalHits + "    已升级：" + totalSucc);
+                                that.msg=`需要升级总数：${totalHits}   已升级:${totalSucc}`;
+                                if (errMsg.length > 0) that.msg=`升级中发生错误：${errMsg}    需要升级总数：${totalHits}    已升级：${totalSucc}`;
                             },
                             error: function(result) {
                                 errMsg += 'ts    ';
@@ -147,7 +148,7 @@
                         });
                     } catch (err) {
                         errMsg += err.message + '    ';
-                        $("#upgradeResult").html(errMsg);
+                        that.msg=errMsg;
                         console.error(err.message, err.stack);
                     }
                 };
@@ -172,12 +173,12 @@
                         url: exportUrl,
                         data: postData,
                         success: function(result) {
-                            $("#upgradeResult").html(nr);
+                            that.msg=nr;
                             nr += '.';
                             if (!totalHits) {
                                 totalHits = result.hits.total;
                                 totalSucc = 0;
-                                $("#upgradeResult").html("需要升级总数：" + totalHits + "    已升级：" + 0);
+                                that.msg=`需要升级总数：${totalHits}    已升级：${0}`;
                             }
                             if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
                                 upgradeQuery(result);
@@ -189,7 +190,7 @@
                         },
                         error: function(xhr, ts, e) {
                             errMsg += 'ts    ';
-                            $("#upgradeResult").html(errMsg);
+                            that.msg=errMsg;
                             console.error('error', ts, e);
                         }
                     });

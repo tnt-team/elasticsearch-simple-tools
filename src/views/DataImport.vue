@@ -3,8 +3,8 @@
         <div class="page-content col-xs-9">
             <div role="form">
                 <div class="form-group">
-                    <label for="">请在此填入数据</label>
-                    <textarea id="importData" class="form-control" rows="5" placeholder="data"></textarea>
+                    <label for="importData">请在此填入数据</label>
+                    <textarea v-model="msg" ref="importData" id="importData" class="form-control" rows="5" placeholder="data"></textarea>
                 </div>
             </div>
             <button type="button" class="btn btn-default" @click="doImport">开始导入</button>
@@ -25,19 +25,16 @@
     export default {
         data(){
             return {
-                index:'',
-                type:'',
+                msg:'',
                 message:'',
-                bulkBody:'',
-                types:[],
-                indexDict:{},
             }
         },
         methods: {
             doImport(){
-                let importData = $("#importData").val().trim();
+                let importData = this.msg.trim();
+
                 if (!importData) {
-                    $("#importResult").html("参数为空");
+                    this.message="参数为空";
                     return false;
                 }
 
@@ -49,7 +46,7 @@
                 } else if (typeof importDataObj.hits === "object" && importDataObj.hits instanceof Array) {
                     dataBody = importDataObj.hits;
                 }
-                let i, dataItem, dataItemId, dataItemIndex, dataItemType, dataItemRouting, dataItemSource;
+                let i, dataItem, dataItemId, dataItemIndex, dataItemType, dataItemRouting, dataItemSource,bulkBody;
                 for (i = 0; i < dataBody.length; i++) {
                     dataItem = dataBody[i];
                     dataItemId = dataItem._id;
@@ -59,25 +56,25 @@
                     dataItemSource = dataItem._source;
 
                     if (dataItemRouting) {
-                        bulkBody += '{"index":{"_index":"' + dataItemIndex + '","_type":"' + dataItemType + '","_id":"' +
-                            dataItemId + '","_routing":"' + dataItemRouting + '"}}\n';
+                        bulkBody=`{"index":{"_index":"${dataItemIndex}","_type":"${dataItemType}","_id":"${dataItemId}","_routing":"${dataItemRouting}"}}\n`;
                     } else {
-                        bulkBody += '{"index":{"_index":"' + dataItemIndex + '","_type":"' + dataItemType + '","_id":"' +
-                            dataItemId + '"}}\n';
+                        bulkBody=`{"index":{"_index":"${dataItemIndex}","_type":"${dataItemType}","_id":"${dataItemId}"}}\n`;
+
                     }
                     bulkBody += JSON.stringify(dataItemSource) + '\n';
                 }
 
                 let importUrl = utils.getHost() + "/_bulk";
+                let that=this;
                 $.ajax({
                     type: "POST",
                     url: importUrl,
                     data: bulkBody,
                     success: function(result) {
-                        $("#importResult").html(format(JSON.stringify(result)), false);
+                        that.message=format(JSON.stringify(result));
                     },
                     error: function(result) {
-                        $("#importResult").html(JSON.stringify(result));
+                        that.message=JSON.stringify(result);
                     }
                 });
                 return false;

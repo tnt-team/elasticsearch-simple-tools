@@ -84,6 +84,9 @@ export default {
     }
     .result-panel .execResult {
         overflow: auto;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
     }
     .active{
         color: red;

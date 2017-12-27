@@ -14,12 +14,13 @@ Vue.config.errorHandler = function(err, vm) {
 let router = new Router({linkActiveClass:'active'});
 
 router.map({
+    '/':{
+        name:'index',
+        component: require('./views/typeExport.vue')
+    },
     '/typeExport': {
         name: 'index',
         component: require('./views/typeExport.vue')
-    },
-    '*': {
-        component: require('./views/404.vue')
     },
     '/dataImport': {
         name: 'dataImport',
@@ -40,8 +41,17 @@ router.map({
     '/flyway': {
         name: 'flyway',
         component: require('./views/flyway.vue')
-    }
+    },
+    '/routerDelete':{
+        name:'routerDelete',
+        component:require('./views/RouterDelete.vue')
+    },
+    '*': {
+        component: require('./views/404.vue')
+    },
 });
+
+router.redirect({'/':'/typeExport'});
 
 router.beforeEach(() => {
     window.scrollTo(0, 0);

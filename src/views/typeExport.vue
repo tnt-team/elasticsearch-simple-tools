@@ -32,6 +32,7 @@
         <div class="page-content col-xs-12 col-md-3">
             <h3>usage:</h3>
             <p>选择index和type,点击“查询”可显示该type下所有数据，点击“下载”可下载该数据json文件</p>
+            <p class="text-warning">*目前只支持10000条</p>
         </div>
     </div>
 </template>

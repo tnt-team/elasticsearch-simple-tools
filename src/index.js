@@ -44,7 +44,11 @@ router.map({
     },
     '/routerDelete':{
         name:'routerDelete',
-        component:require('./views/RouterDelete.vue')
+        component: require('./views/RouterDelete.vue')
+    },
+    '/dataMultiExport':{
+        name:'dataMultiExport',
+        component: require('./views/dataExport.vue')
     },
     '*': {
         component: require('./views/404.vue')

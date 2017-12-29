@@ -9,7 +9,7 @@
             </div>
             <button type="button" class="btn btn-default" @click="doImport">开始导入</button>
             <div class="result-panel panel panel-default">
-                <div id="importResult" class="execResult panel-body">{{ message }}</div>
+                <pre id="importResult" class="execResult panel-body">{{ message }}</pre>
             </div>
         </div>
         <div class="page-content col-xs-3">

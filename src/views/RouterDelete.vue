@@ -10,9 +10,9 @@
                 </div>
                 <button id="deleteRoutingBtn" type="button" class="btn btn-default" @click="routerDelete">删除</button>
                 <div class="result-panel panel panel-default">
-                    <div id="routingDelResult" class="execResult panel-body">
+                    <pre id="routingDelResult" class="execResult panel-body">
                         {{routingDelResult}}
-                    </div>
+                    </pre>
                 </div>
             </div>
         </div>

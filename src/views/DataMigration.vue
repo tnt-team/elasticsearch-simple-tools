@@ -20,9 +20,9 @@
                 </div>
                 <button type="button" class="btn btn-default" @click="moveData">开始迁移</button>
                 <div class="result-panel panel panel-default">
-                    <div id="upgradeResult" class="execResult panel-body">
+                    <pre id="upgradeResult" class="execResult panel-body">
                         {{msg}}
-                    </div>
+                    </pre>
                 </div>
             </div>
         </div>

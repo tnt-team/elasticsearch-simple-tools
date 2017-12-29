@@ -26,7 +26,7 @@
                 <button type="button" class="btn btn-default exportJson" @click="doExport">下载</button>
             </div>
             <div class="result-panel panel panel-default">
-                <div id="exportResult" class="execResult panel-body">{{ message }}</div>
+                <pre id="exportResult" class="execResult panel-body">{{ message }}</pre>
             </div>
         </div>
         <div class="page-content col-xs-12 col-md-3">

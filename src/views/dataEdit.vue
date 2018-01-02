@@ -53,7 +53,7 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li value="{{it.name}}" :value="fn" v-for="fn in fieldNames">
+                <li value="{{it.name}}" @click="it.tip = fn" :value="fn" v-for="fn in fieldNames">
                   <a>{{fn}}</a>
                 </li>
               </ul>
@@ -67,7 +67,7 @@
       </form>
       <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" @click="addEditField"></span>
       <div class="margin-top">
-        <button type="submit" id="editDataBtn" class="btn btn-default">修改</button>
+        <button type="submit" id="editDataBtn" @click="onEdit" class="btn btn-default">修改</button>
       </div>
       <div class="panel panel-default margin-top">
         <div class="panel-heading">输出结果</div>
@@ -96,7 +96,11 @@ export default {
         { name: "", value: "", tip: "请输入字段名", tipValue: "请输入字段值" }
       ],
       editFields: [{ name: "请输入字段名", value: "", tip: "请输入字段名" }],
-      fieldNames: ["请输入字段名"]
+      fieldNames: ["请输入字段名"],
+      searchIndex: "",
+      searchType: "",
+      searchRouting: "",
+      searchIdList: []
     };
   },
   watch: {},
@@ -206,6 +210,14 @@ export default {
         success: result => {
           let fieldArr = [];
           _this.message = utils.format(JSON.stringify(result), false);
+          _this.searchIndex = result.hits.hits[0]._index;
+          _this.searchType = result.hits.hits[0]._type;
+          _this.searchRouting = result.hits.hits[0]._routing;
+          let idList = [];
+          result.hits.hits.forEach(function(each) {
+            idList.push(each._id);
+          });
+          _this.searchIdList = idList;
           let fields = result.hits.hits[0]._source;
           Object.keys(fields).forEach(function(f) {
             fieldArr.push(f);
@@ -214,6 +226,49 @@ export default {
         },
         error: err => {
           _this.message = utils.format(JSON.stringify(err), false);
+        }
+      });
+    },
+    onEdit() {
+      let _this = this;
+      let index = this.searchIndex;
+      let type = this.searchType;
+      let idList = this.searchIdList;
+      let routing = this.searchRouting;
+      if (!index || !type || !idList) {
+        alert("请先查询");
+      }
+      let updateObj = this.editFields;
+      let updateFd = {};
+      updateObj.forEach(function(obj) {
+        if (obj.value) {
+          updateFd[obj.tip] = obj.value;
+        }
+      });
+      let doc = {
+        "doc": updateFd
+      };
+      let updateUrl = utils.getHost();
+      updateUrl += "/" + index + "/" + type + "/_bulk";
+      let bulkBody = "";
+      for (let i = 0; i < idList.length; i++) {
+        if (routing) {
+          bulkBody += `{"update":{"_index":"${index}","_type":"${type}","_id":"${idList[i]}","_routing":"${routing}"}}\n`;
+        } else {
+          bulkBody += `{"update":{"_index":"${index}","_type":"${type}","_id":"${idList[i]}"}}\n`;
+        }
+        bulkBody += JSON.stringify(doc) + "\n";
+      }
+      $.ajax({
+        type: "POST",
+        url: updateUrl,
+        data: bulkBody,
+        success: result => {
+          let num = result.items.length;
+          _this.updateMsg = '已成功更新'+num+'条数据';
+        },
+        error: err => {
+          _this.updateMsg = utils.format(JSON.stringify(err), false);
         }
       });
     }

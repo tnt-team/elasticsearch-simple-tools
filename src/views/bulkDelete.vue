@@ -100,41 +100,23 @@ export default {
     },
   methods: {
     doDelete() {
-      var bulkDeleteIndex = $("#bulkDeleteIndex")
-        .val()
-        .trim();
-      var bulkDeleteType = $("#bulkDeleteType")
-        .val()
-        .trim();
-      var bulkDeleteRouting = $("#bulkDeleteRouting")
-        .val()
-        .trim();
+      var bulkDeleteIndex = $("#bulkDeleteIndex").val()
+      var bulkDeleteType = $("#bulkDeleteType").val()    
+      var bulkDeleteRouting = $("#bulkDeleteRouting").val()
       var bulkDeleteData = $("#bulkDeleteData").val();
 
       if (!bulkDeleteIndex || !bulkDeleteType) {
         alert("索引和类型不能为空");
         return;
       }
-      var bulkDeleteUrl =
-        utils.getHost() +
-        "/" +
-        bulkDeleteIndex +
-        "/" +
-        bulkDeleteType +
-        "/_bulk";
+      var bulkDeleteUrl =utils.getHost() + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_bulk";
 
       //如果data值为空，发起查询请求
       if (!bulkDeleteData) {
         if (!confirm("确认删除该类型全部下的数据吗？")) {
           return;
         }
-        var searchUrl =
-          utils.getHost() +
-          "/" +
-          bulkDeleteIndex +
-          "/" +
-          bulkDeleteType +
-          "/_search";
+        var searchUrl = utils.getHost() + "/" +  bulkDeleteIndex + "/" + bulkDeleteType + "/_search";
 
         if (bulkDeleteRouting) {
           searchUrl += "?routing=" + bulkDeleteRouting;
@@ -213,25 +195,9 @@ function bulkDelete(deleteUrl, bulkDeleteObj, callback, routing) {
     var _type = dataBody[i]._type;
     routing = dataBody[i]._routing || routing;
     if (routing) {
-      bulkBody +=
-        '{"delete":{"_index":"' +
-        _index +
-        '","_type":"' +
-        _type +
-        '","_id":"' +
-        dataBody[i]._id.trim() +
-        '","_routing":"' +
-        routing +
-        '"}}\n';
+      bulkBody += '{"delete":{"_index":"' + _index + '","_type":"' +_type + '","_id":"' + dataBody[i]._id.trim() + '","_routing":"' + routing + '"}}\n';
     } else {
-      bulkBody +=
-        '{"delete":{"_index":"' +
-        _index +
-        '","_type":"' +
-        _type +
-        '","_id":"' +
-        dataBody[i]._id.trim() +
-        '"}}\n';
+      bulkBody +=  '{"delete":{"_index":"' +_index +'","_type":"' + _type + '","_id":"' +dataBody[i]._id.trim() + '"}}\n';
     }
   }
   if (!dataBody || dataBody.length <= 0) {
@@ -266,25 +232,9 @@ function bulkDeleteByIds(deleteUrl, index, type, routing, idArr, callback) {
   var bulkBody = "";
   for (var i = 0; i < length; i++) {
     if (routing) {
-      bulkBody +=
-        '{"delete":{"_index":"' +
-        index +
-        '","_type":"' +
-        type +
-        '","_id":"' +
-        idArr[i].trim() +
-        '","_routing":"' +
-        routing +
-        '"}}\n';
+      bulkBody += '{"delete":{"_index":"' + index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '","_routing":"' +routing + '"}}\n';
     } else {
-      bulkBody +=
-        '{"delete":{"_index":"' +
-        index +
-        '","_type":"' +
-        type +
-        '","_id":"' +
-        idArr[i].trim() +
-        '"}}\n';
+      bulkBody += '{"delete":{"_index":"' +  index + '","_type":"' + type + '","_id":"' + idArr[i].trim() + '"}}\n';
     }
   }
   $.ajax({

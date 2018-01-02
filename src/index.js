@@ -11,11 +11,11 @@ Vue.config.errorHandler = function(err, vm) {
 };
 
 // routing
-let router = new Router({ linkActiveClass: 'active' });
+let router = new Router({linkActiveClass:'active'});
 
 router.map({
-    '/': {
-        name: 'index',
+    '/':{
+        name:'index',
         component: require('./views/typeExport.vue')
     },
     '/typeExport': {
@@ -38,10 +38,24 @@ router.map({
         name: 'dataEdit',
         component: require('./views/dataEdit.vue')
     },
+    '/flyway': {
+        name: 'flyway',
+        component: require('./views/flyway.vue')
+    },
+    '/routerDelete':{
+        name:'routerDelete',
+        component: require('./views/RouterDelete.vue')
+    },
+    '/dataMultiExport':{
+        name:'dataMultiExport',
+        component: require('./views/dataExport.vue')
+    },
     '*': {
         component: require('./views/404.vue')
-    }
+    },
 });
+
+router.redirect({'/':'/typeExport'});
 
 router.beforeEach(() => {
     window.scrollTo(0, 0);

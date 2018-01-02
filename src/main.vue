@@ -3,13 +3,13 @@
         <h1>Elasticsearch实用工具集</h1>
 
         <ul class="main-nav nav nav-pills">
-            <li role="presentation" v-link="{name: 'index'}"><a href="#" >数据查询与导出</a></li>
-            <li role="presentation" v-link="{name:'dataImport'}"><a href="#" >数据导入</a></li>
+            <li role="presentation" v-link="{name:'index'}"><a href="#">数据查询与导出</a></li>
+            <li role="presentation" v-link="{name:'dataImport'}"><a href="#">数据导入</a></li>
             <li role="presentation" v-link="{name:'dataMigration'}"><a href="#">数据迁移</a></li>
-            <li role="presentation" v-link="{name:'bulkDelete'}"><a href="#" >批量删除</a></li>
-            <li role="presentation"><a href="#">flyway删除</a></li>
-            <li role="presentation"><a href="#">删除路由</a></li>
-            <li role="presentation"><a href="#">数据导出·新</a></li>
+            <li role="presentation" v-link="{name:'bulkDelete'}"><a href="#">批量删除</a></li>
+            <li role ="presentation" v-link="{name:'flyway'}"><a href="#">flyway删除</a></li>
+            <li role="presentation" v-link="{name:'routerDelete'}"><a href="#">删除路由</a></li>
+            <li role="presentation" v-link="{name:'dataMultiExport'}"><a href="#">数据多表导出</a></li>
             <li role="presentation" v-link="{name:'dataEdit'}"><a href="#">数据查询与修改</a></li>
         </ul>
 
@@ -84,8 +84,9 @@ export default {
     }
     .result-panel .execResult {
         overflow: auto;
-    }
-    .active{
-        color: red;
+        padding: 15px;
+        height: 115px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
     }
 </style>

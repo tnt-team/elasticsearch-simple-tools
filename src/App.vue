@@ -1,5 +1,5 @@
 <template>
-    <div class="main-container container-fluid">
+  <div id="app" class="main-container container-fluid">
         <h1>Elasticsearch实用工具集</h1>
 
         <ul class="main-nav nav nav-pills">
@@ -22,25 +22,29 @@
 </template>
 
 <script>
-import utils from './utils';
+import $ from 'jquery'
+import utils from './utils/utils'
 
 export default {
-    created() {
-        // 获取es索引信息，成功触发dataReady事件，需要用es索引信息的地方需要监听此事件
-        utils.fetchState().then(() => {
-            $(document).triggerHandler('dataReady');
-        }).catch((reason) => {
-            console.log('fetchState rejected reason: ' + reason);
-        });
-    },
-    ready() {
-        $('.main-panel').height($(window).height() - 141);
-    }
+  name: 'app',
+  created () {
+    // 获取es索引信息，成功触发dataReady事件，需要用es索引信息的地方需要监听此事件
+    utils.fetchState().then(() => {
+      $(document).triggerHandler('dataReady')
+    }).catch((reason) => {
+      console.log('fetchState rejected reason: ' + reason)
+    })
+  },
+  mounted () {
+    this.$nextTick(() => {
+      $('.main-panel').height($(window).height() - 141)
+    })
+  }
 }
 </script>
 
 <style>
-    .fade-transition {
+ .fade-transition {
         transition: opacity .1s ease;
     }
     .fade-enter, .fade-leave {

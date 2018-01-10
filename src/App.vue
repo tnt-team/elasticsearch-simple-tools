@@ -3,14 +3,14 @@
         <h1>Elasticsearch实用工具集</h1>
 
         <ul class="main-nav nav nav-pills">
-            <li role="presentation" v-link="{name:'index'}"><a href="#">数据查询与导出</a></li>
-            <li role="presentation" v-link="{name:'dataImport'}"><a href="#">数据导入</a></li>
-            <li role="presentation" v-link="{name:'dataMigration'}"><a href="#">数据迁移</a></li>
-            <li role="presentation" v-link="{name:'bulkDelete'}"><a href="#">批量删除</a></li>
-            <li role ="presentation" v-link="{name:'flyway'}"><a href="#">flyway删除</a></li>
-            <li role="presentation" v-link="{name:'routerDelete'}"><a href="#">删除路由</a></li>
-            <li role="presentation" v-link="{name:'dataMultiExport'}"><a href="#">数据多表导出</a></li>
-            <li role="presentation" v-link="{name:'dataEdit'}"><a href="#">数据查询与修改</a></li>
+            <router-link role="presentation" to="typeExport" tag="li"><a href="#">数据查询与导出</a></router-link>
+            <router-link role="presentation" to="dataImport" tag="li"><a href="#">数据导入</a></router-link>
+            <router-link role="presentation" to="dataMigration" tag="li"><a href="#">数据迁移</a></router-link>
+            <router-link role="presentation" to="bulkDelete" tag="li"><a href="#">批量删除</a></router-link>
+            <router-link role="presentation" to="flyway" tag="li"><a href="#">flyway删除</a></router-link>
+            <router-link role="presentation" to="routerDelete" tag="li"><a href="#">删除路由</a></router-link>
+            <router-link role="presentation" to="dataMultiExport" tag="li"><a href="#">数据多表导出</a></router-link>
+            <router-link role="presentation" to="dataEdit" tag="li"><a href="#">数据查询与修改</a></router-link>
         </ul>
 
         <div class="main-panel panel panel-default">
@@ -44,7 +44,7 @@ export default {
 </script>
 
 <style>
- .fade-transition {
+    .fade-transition {
         transition: opacity .1s ease;
     }
     .fade-enter, .fade-leave {
@@ -89,7 +89,7 @@ export default {
     .result-panel .execResult {
         overflow: auto;
         padding: 15px;
-        height: 115px;
+        min-height: 115px;
         border-radius: 5px;
         border: 1px solid #ccc;
     }

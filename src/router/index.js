@@ -6,11 +6,11 @@ import NotFound from '@/components/404'
 Vue.use(Router)
 
 export default new Router({
+  linkActiveClass: 'active',
   routes: [
     {
       path: '/',
-      name: 'TypeExport',
-      component: TypeExport
+      redirect: '/typeExport'
     },
     {
       path: '/typeExport',

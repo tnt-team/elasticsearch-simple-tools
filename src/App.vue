@@ -75,6 +75,7 @@ export default {
         margin-top: 15px;
         margin-bottom: 10px;
         border-radius: 0;
+        position: relative;
     }
 
     .main-panel > .panel-body {
@@ -82,9 +83,20 @@ export default {
         padding: 0;
     }
 
+    .flex-page {
+        display: -webkit-flex;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .flex-page > div {
+        flex-shrink: 0;
+    }
+
     .result-panel {
         width: 100%;
         margin-top: 15px;
+        position: relative;
     }
     .result-panel .execResult {
         overflow: auto;
@@ -92,5 +104,14 @@ export default {
         min-height: 115px;
         border-radius: 5px;
         border: 1px solid #ccc;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    .flex-page > .result-panel {
+        flex-grow: 1;
     }
 </style>

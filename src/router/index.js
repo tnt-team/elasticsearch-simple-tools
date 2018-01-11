@@ -4,8 +4,9 @@ import TypeExport from '@/components/TypeExport'
 import DataImport from '@/components/DataImport'
 import DataMigration from '@/components/DataMigration'
 import BulkDelete from '@/components/BulkDelete'
-import DataEdit from '@/components/DataEdit'
 import Flyway from '@/components/Flyway'
+import DataExport from '@/components/DataExport'
+import DataEdit from '@/components/DataEdit'
 import NotFound from '@/components/404'
 
 Vue.use(Router)
@@ -38,14 +39,19 @@ export default new Router({
       component: BulkDelete
     },
     {
-      path: '/dataEdit',
-      name: 'DataEdit',
-      component: DataEdit
-    },
-    {
       path: '/flyway',
       name: 'Flyway',
       component: Flyway
+    },
+    {
+      path: '/dataMultiExport',
+      name: 'DataExport',
+      component: DataExport
+    },
+    {
+      path: '/dataEdit',
+      name: 'DataEdit',
+      component: DataEdit
     },
     {
       path: '*',

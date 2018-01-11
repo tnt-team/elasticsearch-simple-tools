@@ -55,7 +55,7 @@ export default {
   watch: {
     index (val) {
       this.types = this.indexDict[val]
-      if (this.types.length > 0) {
+      if (this.types && this.types.length > 0) {
         this.tp = this.types[0]
       }
     }
@@ -64,22 +64,32 @@ export default {
     $(document).on('dataReady', () => {
       this.indexDict = utils.getState()
       console.log('dataReady', this.indexDict)
-
+      this.setSelects()
+    })
+    this.$nextTick(() => {
+      // 视图渲染之后需要处理索引select的显示
+      let indexDict = utils.getState()
+      if (indexDict) {
+        this.indexDict = indexDict
+        this.setSelects()
+      }
+    })
+  },
+  methods: {
+    setSelects () {
       let indices = []
       Object.keys(this.indexDict).forEach(index => {
         indices.push(index)
       })
       this.indices = indices
-      if (this.indices.length > 0) {
+      if (this.indices && this.indices.length > 0) {
         this.tp = this.indices[0]
         this.types = this.indexDict[this.index]
-        if (this.types.length > 0) {
+        if (this.types && this.types.length > 0) {
           this.tp = this.types[0]
         }
       }
-    })
-  },
-  methods: {
+    },
     doDelete () {
       let that = this
       var bulkDeleteIndex = $('#bulkDeleteIndex').val().trim()

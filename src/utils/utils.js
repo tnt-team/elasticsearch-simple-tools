@@ -7,7 +7,8 @@ export default {
   getHost () {
     let protocol = window.location.protocol
     let hostname = window.location.hostname
-    return protocol + '//' + hostname + ':9200'
+    let port = window.location.port
+    return protocol + '//' + hostname + (port === '80' ? '' : ':9200')
   },
   fetchState () {
     return new Promise((resolve, reject) => {

@@ -54,6 +54,13 @@ export default {
       this.indexDict = utils.getState()
       console.log('dataReady', this.indexDict)
     })
+    this.$nextTick(() => {
+      // 视图渲染之后需要处理索引select的显示
+      let indexDict = utils.getState()
+      if (indexDict) {
+        this.indexDict = indexDict
+      }
+    })
   },
   methods: {
     allCheck (evt) {

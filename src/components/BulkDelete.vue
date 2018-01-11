@@ -83,7 +83,7 @@ export default {
       })
       this.indices = indices
       if (this.indices && this.indices.length > 0) {
-        this.tp = this.indices[0]
+        this.index = this.indices[0]
         this.types = this.indexDict[this.index]
         if (this.types && this.types.length > 0) {
           this.tp = this.types[0]

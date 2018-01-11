@@ -17,15 +17,15 @@
                     <span class="input-group-addon">routing</span>
                     <input type="text" class="form-control" v-model="routing" id="editRoutingUpdate">
                 </div>
-                <div class="form-search-field" v-for="item in searchFields">
+                <div class="form-search-field" v-for="(item, index) in searchFields">
                     <div class="form-inline margin-top">
                         <div class="form-group">
-                            <input type="text" class="form-control" v-model="item.name" placeholder="{{item.tip}}">
+                            <input type="text" class="form-control" v-model="item.name" :placeholder="item.tip">
                         </div>
                         <div class="form-group">
-                            <input type="text" class="form-control" v-model="item.value" placeholder="{{item.tipValue}}">
+                            <input type="text" class="form-control" v-model="item.value" :placeholder="item.tipValue">
                         </div>
-                        <span id="edit-add-field" class="glyphicon glyphicon-minus icon-lg" v-on:click="subSearchField($index)"></span>
+                        <span id="edit-add-field" class="glyphicon glyphicon-minus icon-lg" v-on:click="subSearchField(index)"></span>
                     </div>
                 </div>
                 <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" v-on:click="addSearchField"></span>
@@ -51,7 +51,7 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li v-for="i in fields" v-model="item.name" value="{{i}}">
+                                <li v-for="i in fields" v-model="item.name" :value="i">
                                     <a href="#">{{i}}</a>
                                 </li>
                             </ul>
@@ -99,14 +99,28 @@ export default {
     $(document).on('dataReady', () => {
       this.indexDict = utils.getState()
       console.log('dataReady', this.indexDict)
+      this.setSelects()
+    })
+    this.$nextTick(() => {
+      // 视图渲染之后需要处理索引select的显示
+      let indexDict = utils.getState()
+      if (indexDict) {
+        this.indexDict = indexDict
+        this.setSelects()
+      }
+    })
+  },
+  methods: {
+    setSelects () {
       let indices = ['所有索引']
       Object.keys(this.indexDict).forEach(index => {
         indices.push(index)
       })
       this.indices = indices
-    })
-  },
-  methods: {
+      if (this.indices && this.indices.length > 0) {
+        this.index = this.indices[0]
+      }
+    },
     addSearchField () {
       this.searchFields.push({
         name: '',
@@ -176,10 +190,10 @@ export default {
         url: searchUrl,
         data: paramJson,
         success: result => {
-          _this.message = utils.format(JSON.stringify(result), false)
+          _this.message = utils.formatJson(JSON.stringify(result), false)
         },
         error: err => {
-          _this.message = utils.format(JSON.stringify(err), false)
+          _this.message = utils.formatJson(JSON.stringify(err), false)
         }
       })
     }

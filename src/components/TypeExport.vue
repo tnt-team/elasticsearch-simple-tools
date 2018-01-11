@@ -1,6 +1,6 @@
 <template>
   <div id="TypeExport" class="page-container">
-    <div id="exportTool" class="page-content col-xs-12 col-md-9">
+    <div id="exportTool" class="page-content flex-page col-xs-12 col-md-9">
       <div id="exportForm" role="form">
         <div class="form-group">
           <label for="exportIndex">index</label>

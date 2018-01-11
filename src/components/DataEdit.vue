@@ -1,12 +1,12 @@
 <template>
     <div id="bulkDelete" class="page-container">
-        <div id="bulkDeleteTool" class="toolFrame col-xs-12 col-md-6">
+        <div id="bulkDeleteTool" class="page-content flex-page col-xs-12 col-md-6">
             <h2>数据查询</h2>
             <form id="bulkDeleteForm" role="form">
                 <div class="input-group">
                     <span class="input-group-addon">index</span>
                     <select class="form-control _index" id="dataSearchIndex" v-model="index">
-                        <option v-for="index in indices" value="{{index}}">{{ index }}</option>
+                        <option v-for="index in indices" :value="index">{{ index }}</option>
                     </select>
                 </div>
                 <div class="input-group margin-top">
@@ -15,7 +15,7 @@
                 </div>
                 <div class="input-group margin-top">
                     <span class="input-group-addon">routing</span>
-                    <input type="text" class="form-control" v-model="routing" id="editIdUpdate">
+                    <input type="text" class="form-control" v-model="routing" id="editRoutingUpdate">
                 </div>
                 <div class="form-search-field" v-for="item in searchFields">
                     <div class="form-inline margin-top">
@@ -34,10 +34,10 @@
                 </div>
             </form>
             <div class="result-panel panel panel-default">
-                <div id="exportResult" class="execResult panel-body">{{message}}</div>
+                <pre id="exportResult" class="execResult panel-body">{{message}}</pre>
             </div>
         </div>
-        <div class="page-content col-xs-12 col-md-6">
+        <div class="page-content flex-page col-xs-12 col-md-6">
             <h2>数据修改</h2>
             <!-- 数据修改 -->
             <form class="form">
@@ -67,70 +67,70 @@
             <div class="margin-top">
                 <button type="submit" id="editDataBtn" class="btn btn-default">修改</button>
             </div>
-            <div>
-                <textarea id="editResult" cols="50" class="execResult"> </textarea>
-            </div>
+          <div class="result-panel panel panel-default">
+            <pre id="editResult" class="execResult panel-body">{{ message }}</pre>
+          </div>
         </div>
 
     </div>
 
 </template>
 <script>
-import $ from "jquery";
-import utils from "../utils";
+import $ from 'jquery'
+import utils from '../utils/utils'
+
 export default {
-  data() {
+  data () {
     return {
       indexDict: {},
       indices: [],
-      message: "",
+      message: '',
       // form data
-      index: "",
-      routing: "",
-      dataId: "",
+      index: '',
+      routing: '',
+      dataId: '',
       searchFields: [
-        { name: "", value: "", tip: "请输入字段名", tipValue: "请输入字段值" }
+        { name: '', value: '', tip: '请输入字段名', tipValue: '请输入字段值' }
       ],
-      eidtFields: [{ name: "", value: "", tip: "请输入字段名", tipValue: "请输入字段值" }]
-    };
+      eidtFields: [{ name: '', value: '', tip: '请输入字段名', tipValue: '请输入字段值' }]
+    }
   },
-  watch: {},
-  ready() {
-    $(document).on("dataReady", () => {
-      this.indexDict = utils.getState();
-      console.log("dataReady", this.indexDict);
-      let indices = ["所有索引"];
+  mounted () {
+    $(document).on('dataReady', () => {
+      this.indexDict = utils.getState()
+      console.log('dataReady', this.indexDict)
+      let indices = ['所有索引']
       Object.keys(this.indexDict).forEach(index => {
-        indices.push(index);
-      });
-      this.indices = indices;
-    });
+        indices.push(index)
+      })
+      this.indices = indices
+    })
   },
   methods: {
-    addSearchField() {
+    addSearchField () {
       this.searchFields.push({
-        name: "",
-        value: "",
-        tip: "请输入字段名"
-      });
+        name: '',
+        value: '',
+        tip: '请输入字段名'
+      })
     },
-    subSearchField(index) {
-      this.searchFields.splice(index, 1);
+    subSearchField (index) {
+      this.searchFields.splice(index, 1)
     },
-    addEditField() {
+    addEditField () {
       this.eidtFields.push({
-        name: "",
-        value: "",
-        tip: "请输入字段名"
-      });
+        name: '',
+        value: '',
+        tip: '请输入字段名'
+      })
     },
-    onSearch() {
-      let index = this.index;
-      let routing = this.routing;
-      let id = this.dataId;
-      var searchParam = {};
+    onSearch () {
+      let index = this.index
+      let routing = this.routing
+      let id = this.dataId
+      var searchParam = {}
 
-      //id和字段2选1
+      // id和字段2选1
       if (id) {
         let param = {
           query: {
@@ -139,15 +139,15 @@ export default {
             }
           },
           size: 1
-        };
-        searchParam = param;
+        }
+        searchParam = param
       } else {
-        let musts = [];
-        this.searchFields.forEach(function(each) {
-          let term = {};
-          term[each.name.trim()] = each.value.trim();
-          musts.push({ term });
-        });
+        let musts = []
+        this.searchFields.forEach((each) => {
+          let term = {}
+          term[each.name.trim()] = each.value.trim()
+          musts.push({ term })
+        })
         let param = {
           query: {
             bool: {
@@ -158,33 +158,33 @@ export default {
           },
           from: 0,
           size: 1000
-        };
-        searchParam = param;
+        }
+        searchParam = param
       }
-      var searchUrl = utils.getHost();
-      if (index && index !== "所有索引") {
-        searchUrl += "/" + index;
+      var searchUrl = utils.getHost()
+      if (index && index !== '所有索引') {
+        searchUrl += '/' + index
       }
-      searchUrl += "/_search";
+      searchUrl += '/_search'
       if (routing) {
-        searchUrl += "?routing=" + routing;
+        searchUrl += '?routing=' + routing
       }
-      var paramJson = JSON.stringify(searchParam);
-      var _this = this;
+      var paramJson = JSON.stringify(searchParam)
+      var _this = this
       $.ajax({
-        type: "POST",
+        type: 'POST',
         url: searchUrl,
         data: paramJson,
         success: result => {
-          _this.message = utils.format(JSON.stringify(result), false);
+          _this.message = utils.format(JSON.stringify(result), false)
         },
         error: err => {
-          _this.message = utils.format(JSON.stringify(err), false);
+          _this.message = utils.format(JSON.stringify(err), false)
         }
-      });
+      })
     }
   }
-};
+}
 </script>
 <style scoped>
 .margin-top {

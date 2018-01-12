@@ -133,5 +133,70 @@ export default {
     a.download = fileName
     a.click()
     window.URL.revokeObjectURL(url)
+  },
+  /**
+   * elasticsearch通过scroll的方式查询，适用于数据量超过10000的查询
+   * @param exportUrl
+   * @param postData
+   * @param processReceiver 进度接收
+   */
+  scrollQuery (exportUrl, postData, processReceiver) {
+    return new Promise((resolve, reject) => {
+      let totalFrom
+      let totalHits
+      let errMsg = ''
+      let rs
+      let ajaxQuery = (scrollId) => {
+        if (!totalFrom) totalFrom = 0
+        if (scrollId) {
+          exportUrl = this.getHost() + '/_search/scroll?scroll=1m&scroll_id=' + scrollId
+          postData = ''
+        } else {
+          if (exportUrl.indexOf('?') === -1) {
+            exportUrl += '?scroll=1m'
+          } else {
+            exportUrl += '&scroll=1m'
+          }
+        }
+        $.ajax({
+          type: 'POST',
+          url: exportUrl,
+          data: postData,
+          success (result) {
+            if (!totalHits) {
+              totalHits = result.hits.total
+            }
+            if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
+              console.debug('hits:', result.hits.hits.length, result.hits.hits[0]._id)
+              if (!rs) {
+                rs = result
+              } else {
+                rs.hits.hits = rs.hits.hits.concat(result.hits.hits)
+              }
+            } else {
+              errMsg += `\nfrom ${totalFrom + 1} query error`
+              reject(new Error(errMsg))
+            }
+
+            if (typeof processReceiver === 'function') {
+              processReceiver(totalHits, result)
+            }
+
+            if (totalFrom + 10000 < totalHits) {
+              totalFrom += 10000
+              ajaxQuery(result._scroll_id)
+            } else {
+              resolve(rs)
+            }
+          },
+          error (xhr, ts, e) {
+            errMsg += '\n' + ts
+            console.error('ajaxQuery', ts, e)
+            reject(new Error(errMsg))
+          }
+        })
+      }
+      ajaxQuery()
+    })
   }
 }

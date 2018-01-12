@@ -5,9 +5,9 @@
         <div id="exportSelectGroup" class="form-group">
           <div class="checkbox"><label><input class="all-ck" type="checkbox" value="" @click="allCheck"><b>全选</b></label></div>
           <div class="checkbox" v-for="(types, index) in indexDict">
-            <label><input class="index-ck" data-index="{{index}}" type="checkbox" :value="index" @change="indexChange"><b>{{index}}</b></label>
+            <label><input class="index-ck" :data-index="index" type="checkbox" :value="index" @change="indexChange"><b>{{index}}</b></label>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <label class="checkbox-inline" v-for="tp in types"><input class="type-ck" data-index="{{index}}" type="checkbox" :value="tp" @click="typeCheck">{{tp}}</label>
+            <label class="checkbox-inline" v-for="tp in types"><input class="type-ck" :data-index="index" type="checkbox" :value="tp" @click="typeCheck">{{tp}}</label>
           </div>
         </div>
         <div class="form-group">

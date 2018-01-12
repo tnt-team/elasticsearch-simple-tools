@@ -2,7 +2,7 @@
     <div id="bulkDelete" class="page-container">
         <div id="bulkDeleteTool" class="page-content flex-page col-xs-12 col-md-6">
             <h2>数据查询</h2>
-            <form id="bulkDeleteForm" role="form">
+            <div id="bulkDeleteForm" role="form">
                 <div class="input-group">
                     <span class="input-group-addon">index</span>
                     <select class="form-control _index" id="dataSearchIndex" v-model="index">
@@ -32,7 +32,7 @@
                 <div>
                     <button class="btn btn-default margin-top" @click="onSearch">查询</button>
                 </div>
-            </form>
+            </div>
             <div class="result-panel panel panel-default">
                 <pre id="exportResult" class="execResult panel-body">{{message}}</pre>
             </div>
@@ -40,7 +40,7 @@
         <div class="page-content flex-page col-xs-12 col-md-6">
             <h2>数据修改</h2>
             <!-- 数据修改 -->
-            <form class="form">
+            <div class="form">
                 <input type="hidden" id="editIndexUpdate" />
                 <input type="hidden" id="editTypeUpdate" />
                 <div id="form-edit-field" v-for="item in editFields">
@@ -62,13 +62,13 @@
                         </span>
                     </div>
                 </div>
-            </form>
+            </div>
             <span id="edit-add-field" class="glyphicon glyphicon-plus-sign  icon-lg margin-top" @click="addEditField"></span>
             <div class="margin-top">
                 <button type="submit" id="editDataBtn" class="btn btn-default">修改</button>
             </div>
           <div class="result-panel panel panel-default">
-            <pre id="editResult" class="execResult panel-body">{{ message }}</pre>
+            <pre id="editResult" class="execResult panel-body">{{ message2 }}</pre>
           </div>
         </div>
 
@@ -85,6 +85,7 @@ export default {
       indexDict: {},
       indices: [],
       message: '',
+      message2: '',
       // form data
       index: '',
       routing: '',

@@ -32,7 +32,6 @@
     <div class="page-content col-xs-12 col-md-3">
       <h3>usage:</h3>
       <p>选择index和type,点击“查询”可显示该type下所有数据，点击“下载”可下载该数据json文件</p>
-      <p class="text-warning">*目前只支持10000条</p>
     </div>
   </div>
 </template>
@@ -96,22 +95,34 @@ export default {
       }
     },
     doQuery () {
+      let that = this
       this.message = '...'
 
       let routingQurey = ''
       if (this.routing) {
         routingQurey = '{"term":{ "_routing":"' + this.routing + '"}}'
       }
-      let exportUrl = utils.getHost() + '/' + this.index + '/' + this.type + '/_search'
 
-      let that = this
+      let exportUrl = utils.getHost() + '/' + this.index + '/' + this.type + '/_search'
+      let postData = '{"from":0,"size":10000,"query":{"bool":{"must":[' + routingQurey + '],"must_not":[],' +
+        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}'
+
       $.ajax({
         type: 'POST',
         url: exportUrl,
-        data: '{"from":0,"size":10000,"query":{"bool":{"must":[' + routingQurey + '],"must_not":[],' +
-        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
+        data: postData,
         success (result) {
-          that.message = utils.formatJson(JSON.stringify(result))
+          if (result.hits.total <= 10000) {
+            that.message = utils.formatJson(JSON.stringify(result))
+          } else {
+            this.message = '结果大于10000条，进行增强查询...'
+            utils.scrollQuery(exportUrl, postData).then((res) => {
+              that.message = JSON.stringify(res)
+            }).catch((reason) => {
+              console.error('fetchState rejected reason: ' + reason)
+              that.message = JSON.stringify(reason)
+            })
+          }
         },
         error (err) {
           that.message = JSON.stringify(err)

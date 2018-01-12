@@ -32,7 +32,7 @@ export default {
     utils.fetchState().then(() => {
       $(document).triggerHandler('dataReady')
     }).catch((reason) => {
-      console.log('fetchState rejected reason: ' + reason)
+      console.error('fetchState rejected reason: ' + reason)
     })
   },
   mounted () {

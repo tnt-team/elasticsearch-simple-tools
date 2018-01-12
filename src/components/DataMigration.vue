@@ -98,9 +98,14 @@
         }
       },
       moveData () {
+        let that = this
         let upgradeFromIndex = this.indexBeg.trim()
         let upgradeToIndex = this.indexEd.trim()
-        let that = this
+
+        let totalHits = 0
+        let totalSucc = 0
+
+        let errMsg = ''
 
         this.msg = '准备升级...'
         if (!upgradeFromIndex || !upgradeToIndex) {
@@ -143,13 +148,13 @@
               data: bulkBody,
               success (result) {
                 totalSucc += dataBody.length
-                that.msg = `需要升级总数：${totalHits}  已升级:${totalSucc}`
+                that.msg = `需要升级总数：${totalHits}  已升级: ${totalSucc}`
                 if (errMsg.length > 0) that.msg = `升级中发生错误：${errMsg}  需要升级总数：${totalHits}  已升级：${totalSucc}`
               },
-              error (result) {
-                errMsg += 'ts  '
+              error (xhr, ts, e) {
+                errMsg += '\n' + ts
                 that.msg = errMsg
-                console.error('error', result)
+                console.error('error', ts, e)
               }
             })
           } catch (err) {
@@ -159,49 +164,19 @@
           }
         }
 
-        let exportUrl = utils.getHost() + '/' + upgradeFromIndex
-        exportUrl += '/_search?scroll=1m'
+        let exportUrl = utils.getHost() + '/' + upgradeFromIndex + '/_search'
         let postData = '{"fields":["_parent","_source"],"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
           '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}'
-        let nr = '...'
-        let totalHits = NaN
-        let totalFrom = NaN
-        let totalSucc = NaN
-        let errMsg = ''
-        let ajaxQuery = (scrollId) => {
-          if (!totalFrom) totalFrom = 0
-          if (scrollId) {
-            exportUrl = utils.getHost() + '/_search/scroll?scroll=1m&scroll_id=' + scrollId
-            postData = ''
+        utils.scrollQuery(exportUrl, postData, (th, r) => {
+          if (!totalHits) {
+            totalHits = th
           }
-          $.ajax({
-            type: 'POST',
-            url: exportUrl,
-            data: postData,
-            success (result) {
-              that.msg = nr
-              nr += '.'
-              if (!totalHits) {
-                totalHits = result.hits.total
-                totalSucc = 0
-                that.msg = `需要升级总数：${totalHits}  已升级：${0}`
-              }
-              if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
-                upgradeQuery(result)
-              }
-              if (totalFrom + 10000 < totalHits) {
-                totalFrom += 10000
-                ajaxQuery(result._scroll_id)
-              }
-            },
-            error (xhr, ts, e) {
-              errMsg += 'ts  '
-              that.msg = errMsg
-              console.error('error', ts, e)
-            }
-          })
-        }
-        ajaxQuery()
+          upgradeQuery(r)
+        }).catch((reason) => {
+          console.error('scrollQuery rejected reason: ' + reason)
+          errMsg += '\n' + JSON.stringify(reason)
+          that.msg = errMsg
+        })
       }
     }
   }

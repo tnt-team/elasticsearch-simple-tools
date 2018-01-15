@@ -75,31 +75,10 @@
     }
   }
 </script>
-<style>
-  .row {
-    margin-right: 0;
-    margin-left: 0;
-  }
-
-  .toolFrame {
-    border: 1px #efefef solid;
-    padding: 5px;
-  }
+<style scoped>
   .panel{
     border:none;
     webkit-box-shadow:none;
     box-shadow: none;
-  }
-  .execResult {
-    margin-top: 15px;
-    border: 1px #efefef solid;
-    padding: 5px;
-    word-break: break-all;
-    word-wrap: break-word;
-    overflow-y: auto;
-    user-select: text;
-    -moz-user-select: text;
-    -webkit-user-select: text;
-    -ms-user-select: text;
   }
 </style>

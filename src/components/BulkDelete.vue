@@ -228,6 +228,6 @@ function bulkDeleteByIds (deleteUrl, index, type, routing, idArr, cb) {
   })
 }
 </script>
-<style>
+<style scoped>
 
 </style>

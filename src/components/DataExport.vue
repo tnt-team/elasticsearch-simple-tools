@@ -111,57 +111,53 @@ export default {
       let that = this
       this.message = '...'
 
+      let exportMessageDict = {}
+
+      let updateProcessMessage = () => {
+        let msg = ''
+        Object.keys(exportMessageDict).forEach((key) => {
+          let index = key.split('#')[0]
+          let type = key.split('#')[1]
+          let total = exportMessageDict[key]['totalHits']
+          let succ = exportMessageDict[key]['succHits']
+          msg += `index-${index} type-${type}: total ${total} succ ${succ}\n`
+        })
+        that.message = msg
+      }
+
       let exportTotalResult = []
       let routing = this.routing
       let exportTypeQuery = (index, type, routing) => {
-        let exportUrl = utils.getHost() + '/' + index + '/' + type + '/_search?scroll=1m'
-        let exportResult = {}
+        let exportUrl = utils.getHost() + '/' + index + '/' + type + '/_search'
         let routingQurey = ''
         if (routing) {
           routingQurey = '{"term":{ "_routing":"' + routing + '"}}'
         }
         let postData = '{"size":10000,"query":{"bool":{"must":[' + routingQurey + '],"must_not":[],' +
           '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}'
-        let nr = '...'
-        // console.log(routingQurey)
-        let ajaxQuery = (from, scrollId) => {
-          if (!from) from = 0
-          if (scrollId) {
-            exportUrl = utils.getHost() + '/_search/scroll?scroll=1m&scroll_id=' + scrollId
-            postData = ''
+
+        let key = index + '#' + type
+
+        utils.scrollQuery(exportUrl, postData, (th, r) => {
+          if (!exportMessageDict[key]) {
+            exportMessageDict[key] = {}
           }
-          $.ajax({
-            type: 'POST',
-            url: exportUrl,
-            data: postData,
-            success (result) {
-              that.message = nr
-              nr += '.'
-              if (typeof exportResult.total !== 'number') {
-                exportResult.total = result.hits.total
-                exportResult.hits = []
-              }
-              if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
-                // console.log('ret5')
-                // console.log(result.hits.hits.slice(0, 5))
-                exportResult.hits = exportResult.hits.concat(result.hits.hits)
-              }
-              if (from + 10000 < exportResult.total) {
-                ajaxQuery(from + 10000, result._scroll_id)
-              } else {
-                exportTotalResult.push({
-                  index: index,
-                  type: type,
-                  data: exportResult
-                })
-              }
-            },
-            error (result) {
-              that.message = 'JSON.stringify(result)'
-            }
+          if (!exportMessageDict[key]['totalHits']) {
+            exportMessageDict[key]['totalHits'] = th
+            exportMessageDict[key]['succHits'] = 0
+          }
+          exportMessageDict[key]['succHits'] += r.hits.hits.length
+          updateProcessMessage()
+        }).then((res) => {
+          exportTotalResult.push({
+            index: index,
+            type: type,
+            data: res
           })
-        }
-        ajaxQuery()
+        }).catch((reason) => {
+          console.error('fetchState rejected reason: ' + reason)
+          that.message = JSON.stringify(reason)
+        })
       }
 
       let selTypeChecked = $('#exportSelectGroup').find('.type-ck:checked')
@@ -197,7 +193,7 @@ export default {
             outContent += '// --------------------------------------------------------\n\n'
           })
           // console.log(outContent)
-          that.message = outContent
+          that.message += '生成数据文件'
           utils.downloadFile('export' + cdate.getTime(), outContent, 'text/plain')
         }
       }, 200)
@@ -209,7 +205,7 @@ export default {
 <style scoped>
   #exportSelectGroup {
     border: 1px #efefef solid;
-    max-height: 400px;
+    max-height: 200px;
     padding-left: 10px;
     overflow-y: auto;
   }

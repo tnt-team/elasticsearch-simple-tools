@@ -191,10 +191,10 @@ export default {
         url: searchUrl,
         data: paramJson,
         success: result => {
-          _this.message = utils.formatJson(JSON.stringify(result), false)
+          _this.message = utils.formatJson(result)
         },
         error: err => {
-          _this.message = utils.formatJson(JSON.stringify(err), false)
+          _this.message = JSON.stringify(err)
         }
       })
     }

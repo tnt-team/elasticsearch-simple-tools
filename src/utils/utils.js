@@ -167,7 +167,9 @@ export default {
               totalHits = result.hits.total
             }
             if (typeof result.hits.hits === 'object' && result.hits.hits instanceof Array) {
-              console.debug('hits:', result.hits.hits.length, result.hits.hits[0]._id)
+              if (result.hits.hits.length > 0) {
+                console.debug('hits:', result.hits.hits.length, result.hits.hits[0]._id)
+              }
               if (!rs) {
                 rs = result
               } else {

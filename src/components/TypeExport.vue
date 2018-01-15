@@ -113,11 +113,11 @@ export default {
         data: postData,
         success (result) {
           if (result.hits.total <= 10000) {
-            that.message = utils.formatJson(JSON.stringify(result))
+            that.message = utils.formatJson(result)
           } else {
-            this.message = '结果大于10000条，进行增强查询...'
+            that.message = '结果大于10000条，进行增强查询...'
             utils.scrollQuery(exportUrl, postData).then((res) => {
-              that.message = JSON.stringify(res)
+              that.message = utils.formatJson(res)
             }).catch((reason) => {
               console.error('fetchState rejected reason: ' + reason)
               that.message = JSON.stringify(reason)
@@ -141,6 +141,6 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 
 </style>

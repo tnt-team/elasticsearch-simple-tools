@@ -38,6 +38,9 @@ export default {
   mounted () {
     this.$nextTick(() => {
       $('.main-panel').height($(window).height() - 141)
+      $(window).on('resize', () => {
+        $('.main-panel').height($(window).height() - 141)
+      })
     })
   }
 }
@@ -109,6 +112,10 @@ export default {
         right: 0;
         bottom: 0;
         left: 0;
+    }
+    .result-panel .execResult:before,
+    .result-panel .execResult:after {
+      display: none;
     }
 
     .flex-page > .result-panel {

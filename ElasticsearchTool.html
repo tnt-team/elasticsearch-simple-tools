@@ -25,17 +25,17 @@
             -webkit-user-select: none;
             -ms-user-select: none;
         }
-        
+
         .row {
             margin-right: 0;
             margin-left: 0;
         }
-        
+
         .toolFrame {
             border: 1px #efefef solid;
             padding: 5px;
         }
-        
+
         .execResult {
             margin-top: 15px;
             border: 1px #efefef solid;
@@ -48,11 +48,11 @@
             -webkit-user-select: text;
             -ms-user-select: text;
         }
-        
+
         .import-btn {
             margin-top: 20px;
         }
-        
+
         #exportSelectGroupN {
             border: 1px #efefef solid;
             max-height: 400px;
@@ -78,17 +78,31 @@
 
 
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#typeExport" role="tab" data-toggle="tab">数据查询与导出</a></li>
-            <li role="presentation"><a href="#typeImport" role="tab" data-toggle="tab">数据导入</a></li>
-            <li role="presentation"><a href="#typeUpgrade" role="tab" data-toggle="tab">数据迁移</a></li>
-            <li role="presentation"><a href="#bulkDelete" role="tab" data-toggle="tab">批量删除</a></li>
-            <li role="presentation"><a href="#flywayDelete" role="tab" data-toggle="tab">flyway删除</a></li>
-            <li role="presentation"><a href="#routingDelete" role="tab" data-toggle="tab">删除路由</a></li>
-            <li role="presentation"><a id="dataExportToggle" href="#dataExport" role="tab" data-toggle="tab">数据导出·新</a></li>
+            <li role="presentation" class="active">
+                <a href="#typeExport" role="tab" data-toggle="tab">数据查询与导出</a>
+            </li>
+            <li role="presentation">
+                <a href="#typeImport" role="tab" data-toggle="tab">数据导入</a>
+            </li>
+            <li role="presentation">
+                <a href="#typeUpgrade" role="tab" data-toggle="tab">数据迁移</a>
+            </li>
+            <li role="presentation">
+                <a href="#bulkDelete" role="tab" data-toggle="tab">批量删除</a>
+            </li>
+            <li role="presentation">
+                <a href="#flywayDelete" role="tab" data-toggle="tab">flyway删除</a>
+            </li>
+            <li role="presentation">
+                <a href="#routingDelete" role="tab" data-toggle="tab">删除路由</a>
+            </li>
+            <li role="presentation">
+                <a id="dataExportToggle" href="#dataExport" role="tab" data-toggle="tab">批量导出</a>
+            </li>
         </ul>
 
-        <!--导出数据-->
         <div class="tab-content">
+            <!--导出数据-->
             <div role="tabpanel" class="tab-pane active" id="typeExport">
                 <div class="toolWrapper row">
                     <div id="exportTool" class="toolFrame col-xs-12 col-md-6">
@@ -98,14 +112,14 @@
                                 <label for="exportIndex">index</label>
                                 <div class="form-group">
                                     <select class="form-control _index" id="exportIndex">
-                                </select>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="exportType">type</label>
                                 <div class="form-group">
                                     <select class="form-control _type" id="exportType">
-                                </select>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -161,14 +175,14 @@
                                 <label for="upgradeFromIndex">起始索引</label>
                                 <div class="form-group">
                                     <select class="form-control _index" id="upgradeFromIndex">
-                                </select>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="upgradeToIndex">目标索引</label>
                                 <div class="form-group">
                                     <select class="form-control _index" id="upgradeToIndex">
-                                </select>
+                                    </select>
                                 </div>
                             </div>
                             <!--<div class="form-group">
@@ -197,7 +211,7 @@
                                 <label for="bulkDeleteIndex">index</label>
                                 <div class="form-group">
                                     <select class="form-control _index" id="bulkDeleteIndex">
-                                </select>
+                                    </select>
                                 </div>
                                 <!--<input type="text" class="form-control" id="bulkDeleteIndex" placeholder="index">-->
                             </div>
@@ -206,16 +220,16 @@
                                 <!--<input type="text" class="form-control _type" id="bulkDeleteType" placeholder="type">-->
                                 <div class="form-group">
                                     <select class="form-control _type" id="bulkDeleteType">
-                                </select>
+                                    </select>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="bulkDeleteRouting">routing</label>
-                                <input type="text" class="form-control" id="bulkDeleteRouting" placeholder="routing,为空表示删除所有路由下该类型数据">
+                                <input type="text" class="form-control" id="bulkDeleteRouting" placeholder="routing，按id删除时有routing的数据须填；按data删除可不填">
                             </div>
                             <div class="form-group">
                                 <label for="bulkDeleteData">data</label>
-                                <textarea id="bulkDeleteData" class="form-control" rows="4" placeholder="请填写要删除数据的id集合，以逗号分隔。为空表示全部删除"></textarea>
+                                <textarea id="bulkDeleteData" class="form-control" rows="4" placeholder="请填写要删除数据的id集合，以逗号分隔；或者传入查询出的数据，兼容head插件查询出的数据"></textarea>
                             </div>
                             <button type="submit" class="btn btn-default">Submit</button>
                         </form>
@@ -284,11 +298,11 @@
 
             </div>
 
-            <!--导出数据·新-->
+            <!--批量导出-->
             <div role="tabpanel" class="tab-pane" id="dataExport">
                 <div class="toolWrapper row">
                     <div id="exportTool" class="toolFrame col-xs-12 col-md-6">
-                        <h2>数据导出功能·新</h2>
+                        <h2>批量导出</h2>
                         <form id="exportFormN" role="form">
                             <div id="exportSelectGroupN" class="form-group"></div>
                             <div class="form-group">
@@ -308,8 +322,6 @@
 
         </div>
 
-
-
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
         <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -326,7 +338,7 @@
             // var host = getHost();
             var host = getHost();
 
-            $(function() {
+            $(function () {
 
                 //页面设置高度
                 setHeight();
@@ -347,7 +359,7 @@
                 /**
                  * 导出
                  */
-                $("#exportForm").on("submit", function(evt) {
+                $("#exportForm").on("submit", function (evt) {
                     evt.preventDefault();
                     msgExportResult("...");
                     var _index = $("#exportIndex").val().trim();
@@ -369,11 +381,11 @@
                         url: exportUrl,
                         data: '{"from":0,"size":10000,"query":{"bool":{"must":[' + routingQurey + '],"must_not":[],' +
                             '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
-                        success: function(result) {
+                        success: function (result) {
                             var json = format(JSON.stringify(result), false);
                             msgExportResult(json);
                         },
-                        error: function(result) {
+                        error: function (result) {
                             msgExportResult(JSON.stringify(result));
                         }
                     });
@@ -384,7 +396,7 @@
                 /**
                  * 索引改变事件
                  */
-                $("._index").on("change", function() {
+                $("._index").on("change", function () {
                     var index = $(this).val();
                     console.log(index);
                     setTypes(index);
@@ -393,7 +405,7 @@
 
 
                 //导出文件
-                $(".exportJson").on("click", function() {
+                $(".exportJson").on("click", function () {
                     var content = $("#exportResult").text();
                     if (!content.trim()) {
                         alert('内容为空，请点击Submit!');
@@ -407,17 +419,15 @@
                 /**
                  * 从文件中导入数据
                  */
-                $(".import-btn").on("click", function() {
+                $(".import-btn").on("click", function () {
                     alert('待后续完成...');
-
-
                 });
 
 
                 /**
                  * 导入
                  */
-                $("#importForm").on("submit", function(evt) {
+                $("#importForm").on("submit", function (evt) {
                     evt.preventDefault();
                     msgImportResult("...");
                     var importData = $("#importData").val().trim();
@@ -459,10 +469,10 @@
                         type: "POST",
                         url: importUrl,
                         data: bulkBody,
-                        success: function(result) {
+                        success: function (result) {
                             msgImportResult(format(JSON.stringify(result)), false);
                         },
-                        error: function(result) {
+                        error: function (result) {
                             msgImportResult(JSON.stringify(result));
                         }
                     });
@@ -473,7 +483,7 @@
                 /**
                  * 删除
                  */
-                $("#bulkDeleteForm").on("submit", function(evt) {
+                $("#bulkDeleteForm").on("submit", function (evt) {
                     evt.preventDefault();
                     msgBulkDeleteResult("...");
 
@@ -488,34 +498,27 @@
 
                     var bulkDeleteUrl = host + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_bulk";
 
-                    //如果data值为空，发起查询请求
                     if (!bulkDeleteData) {
-                        if (!confirm('确认删除该类型全部下的数据吗？')) {
-                            return false;
-                        }
-                        var searchUrl = host + "/" + bulkDeleteIndex + "/" + bulkDeleteType + "/_search";
-                        if (bulkDeleteRouting) {
-                            searchUrl += '?routing=' + bulkDeleteRouting;
-                        }
-                        $.ajax({
-                            type: "POST",
-                            url: searchUrl,
-                            data: '{"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
-                                '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}',
-                            success: function(result) {
-                                bulkDelete(bulkDeleteUrl, result, function(err) {
-                                    msgBulkDeleteResult("删除完成！共删除" + result.hits.hits.length + "条数据。");
-                                });
-                                return false;
-                            },
-                            error: function(err) {
-                                msgBulkDeleteResult(JSON.stringify(err));
-                                return false;
+                        msgBulkDeleteResult("data为空");
+                        return false;
+                    }
+
+                    // 尝试解析为json数据，失败再按id来处理
+                    try {
+                        var deleteDataObj = JSON.parse(bulkDeleteData);
+                        bulkDelete(bulkDeleteUrl, deleteDataObj, function (err) {
+                            var len = 0;
+                            if (typeof deleteDataObj.hits === "object" && !(deleteDataObj.hits instanceof Array) &&
+                                typeof deleteDataObj.hits.hits === "object" && deleteDataObj.hits.hits instanceof Array) {
+                                len = deleteDataObj.hits.hits.length;
+                            } else if (typeof deleteDataObj.hits === "object" && deleteDataObj.hits instanceof Array) {
+                                len = deleteDataObj.hits.length;
                             }
-                        });
-                    } else {
+                            msgBulkDeleteResult("删除完成！共删除" + len + "条数据。");
+                        }, bulkDeleteRouting);
+                    } catch (err) {
                         var delIds = bulkDeleteData.split(',');
-                        bulkDeleteByIds(bulkDeleteUrl, bulkDeleteIndex, bulkDeleteType, bulkDeleteRouting, delIds, function(err, delLength) {
+                        bulkDeleteByIds(bulkDeleteUrl, bulkDeleteIndex, bulkDeleteType, bulkDeleteRouting, delIds, function (err, delLength) {
                             if (err) {
                                 msgBulkDeleteResult("删除失败！" + err);
                             } else {
@@ -523,7 +526,6 @@
                             }
                         });
                     }
-
                 });
 
                 // type upgrade
@@ -532,7 +534,7 @@
                 function msgUpgradeResult(msg) {
                     $("#upgradeResult").text(msg);
                 }
-                $("#upgradeForm").on("submit", function(evt) {
+                $("#upgradeForm").on("submit", function (evt) {
                     evt.preventDefault();
                     msgUpgradeResult("准备升级...");
                     var upgradeFromIndex = $("#upgradeFromIndex").val().trim();
@@ -541,8 +543,8 @@
                         msgUpgradeResult("参数为空");
                         return false;
                     }
-                
-                    var upgradeQuery = function(results) {
+
+                    var upgradeQuery = function (results) {
                         try {
                             var importDataObj = results;
                             var dataBody;
@@ -577,12 +579,12 @@
                                 type: "POST",
                                 url: importUrl,
                                 data: bulkBody,
-                                success: function(result) {
+                                success: function (result) {
                                     totalSucc += dataBody.length;
                                     msgUpgradeResult("需要升级总数：" + totalHits + "    已升级：" + totalSucc);
                                     if (errMsg.length > 0) msgUpgradeResult("升级中发生错误：" + errMsg + "    需要升级总数：" + totalHits + "    已升级：" + totalSucc);
                                 },
-                                error: function(result) {
+                                error: function (result) {
                                     errMsg += 'ts    ';
                                     msgExportNResult(errMsg);
                                     console.error('error', ts, e);
@@ -598,13 +600,13 @@
                     var exportUrl = host + "/" + upgradeFromIndex;
                     exportUrl += "/_search?scroll=1m";
                     var postData = '{"fields":["_parent","_source"],"from":0,"size":10000,"query":{"bool":{"must":[],"must_not":[],' +
-                            '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}';
+                        '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}';
                     var nr = "...";
                     var totalHits = NaN;
                     var totalFrom = NaN;
                     var totalSucc = NaN;
                     var errMsg = '';
-                    var ajaxQuery = function(scrollId) {
+                    var ajaxQuery = function (scrollId) {
                         if (!totalFrom) totalFrom = 0;
                         if (scrollId) {
                             exportUrl = host + '/_search/scroll?scroll=1m&scroll_id=' + scrollId;
@@ -614,7 +616,7 @@
                             type: "POST",
                             url: exportUrl,
                             data: postData,
-                            success: function(result) {
+                            success: function (result) {
                                 msgUpgradeResult(nr);
                                 nr += '.';
                                 if (!totalHits) {
@@ -633,7 +635,7 @@
                                     ajaxQuery(result._scroll_id);
                                 }
                             },
-                            error: function(xhr, ts, e) {
+                            error: function (xhr, ts, e) {
                                 errMsg += 'ts    ';
                                 msgUpgradeResult(errMsg);
                                 console.error('error', ts, e);
@@ -645,14 +647,14 @@
                 });
 
                 // flyway删除
-                $("#deleteFlyBtn").on('click', function() {
+                $("#deleteFlyBtn").on('click', function () {
                     var text = $("#deleteFlyVersion").val();
                     var searchUrl = host + '/flyway/flywayInfo/_search';
                     $.ajax({
                         type: "POST",
                         url: searchUrl,
                         data: '{"query": {"term": {"fVersion": "' + text + '"}}}',
-                        success: function(result) {
+                        success: function (result) {
                             if (!(result && result.hits.hits[0] && result.hits.hits[0]._id)) {
                                 console.log('查询没有结果');
                                 $("#flywayResult").text('查询没有结果');
@@ -663,20 +665,20 @@
                             $.ajax({
                                 type: 'DELETE',
                                 url: deleteUrl,
-                                success: function(data) {
+                                success: function (data) {
 
                                     if (data && data.found) {
                                         console.log('删除成功');
                                         $("#flywayResult").text('删除成功');
                                     }
                                 },
-                                error: function(data) {
+                                error: function (data) {
                                     console.log(data);
                                 }
                             });
                             return false;
                         },
-                        error: function(result) {
+                        error: function (result) {
                             msgBulkDeleteResult(JSON.stringify(result));
                             return false;
                         }
@@ -684,7 +686,7 @@
                 });
 
                 //    删除路由
-                $("#deleteRoutingBtn").on('click', function() {
+                $("#deleteRoutingBtn").on('click', function () {
                     var routing = $("#routingDeleteValue").val();
                     var searchUrl = host + '/_search';
                     var bulkDelRoutingUrl = host + "/_bulk";
@@ -693,26 +695,26 @@
                         url: searchUrl,
                         type: "POST",
                         data: '{"from":0,"size":10000,"query": {"term": {"_routing": "' + routing + '"}}}',
-                        success: function(result) {
+                        success: function (result) {
                             if (!(result && result.hits.hits[0] && result.hits.hits[0]._id)) {
                                 console.log('查询没有结果');
                                 $("#routingDelResult").text('查询没有结果');
                                 return;
                             }
-                            bulkDelete(bulkDelRoutingUrl, result, function(err) {
+                            bulkDelete(bulkDelRoutingUrl, result, function (err) {
                                 $("#routingDelResult").text('删除成功！共删除' + result.hits.hits.length + "条数据。");
                                 return false;
                             }, routing);
                         },
-                        error: function(err) {
+                        error: function (err) {
                             $("#routingDelResult").text('获取路由下数据失败' + err);
 
                         }
                     });
                 });
 
-                // 数据导出·新
-                $('#dataExportToggle').on('shown.bs.tab', function(e) {
+                // 批量导出
+                $('#dataExportToggle').on('shown.bs.tab', function (e) {
                     console.log('here');
                     var sel = $('#exportSelectGroupN');
                     if (sel.html().trim() !== '') return;
@@ -722,11 +724,11 @@
                     var innerHtml = '<div class="checkbox"><label><input class="all-ck" type="checkbox" value=""><b>全选</b></label></div>';
                     var idx = Object.keys(indices);
                     idx.sort();
-                    idx.forEach(function(index) {
+                    idx.forEach(function (index) {
                         var indexHtml = '';
                         var types = indices[index];
                         if (types.length > 0) indexHtml += '&nbsp;&nbsp;&nbsp;&nbsp;';
-                        types.forEach(function(type) {
+                        types.forEach(function (type) {
                             indexHtml += tpl2.replace(/{{index}}/g, index).replace(/{{type}}/g, type);
                         });
 
@@ -735,7 +737,7 @@
                     sel.html(innerHtml);
 
                     //events
-                    sel.find('.all-ck').on('click', function() {
+                    sel.find('.all-ck').on('click', function () {
                         // console.log('click');
                         var isChecked = $(this).is(":checked");
                         var selIndex = sel.find('.index-ck');
@@ -749,7 +751,7 @@
                         }
                     });
 
-                    sel.find('.index-ck').on('change', function() {
+                    sel.find('.index-ck').on('change', function () {
                         // console.log('change');
                         var isChecked = $(this).is(":checked");
                         var selIndex = sel.find('.index-ck');
@@ -766,7 +768,7 @@
                         }
                     });
 
-                    sel.find('.type-ck').on('click', function() {
+                    sel.find('.type-ck').on('click', function () {
                         // console.log('click');
                         var isChecked = $(this).is(":checked");
                         var index = $(this).attr('data-index');
@@ -783,7 +785,7 @@
                     });
                 });
 
-                $("#exportFormN").on("submit", function(evt) {
+                $("#exportFormN").on("submit", function (evt) {
 
                     var exportTotalResult = [];
 
@@ -792,7 +794,7 @@
 
                     var routing = $("#exportRoutingN").val().trim();
 
-                    var exportTypeQuery = function(index, type, routing) {
+                    var exportTypeQuery = function (index, type, routing) {
                         var exportUrl = host + "/" + index + "/" + type + "/_search?scroll=1m";
                         var exportResult = {};
                         var routingQurey = '';
@@ -803,7 +805,7 @@
                             '"should":[{"match_all":{}}]}},"sort":[],"aggs":{},"version":true}';
                         var nr = '...';
                         // console.log(routingQurey);
-                        var ajaxQuery = function(from, scrollId) {
+                        var ajaxQuery = function (from, scrollId) {
                             if (!from) from = 0;
                             if (scrollId) {
                                 exportUrl = host + '/_search/scroll?scroll=1m&scroll_id=' + scrollId;
@@ -813,7 +815,7 @@
                                 type: "POST",
                                 url: exportUrl,
                                 data: postData,
-                                success: function(result) {
+                                success: function (result) {
                                     msgExportNResult(nr);
                                     nr += '.';
                                     if (typeof exportResult.total !== 'number') {
@@ -832,7 +834,7 @@
                                         data: exportResult
                                     });
                                 },
-                                error: function(result) {
+                                error: function (result) {
                                     msgExportNResult(JSON.stringify(result));
                                 }
                             });
@@ -841,14 +843,14 @@
                     }
 
                     var selTypeChecked = $('#exportSelectGroupN').find('.type-ck:checked');
-                    selTypeChecked.each(function(ix, selType) {
+                    selTypeChecked.each(function (ix, selType) {
                         selType = $(selType);
                         var index = selType.attr('data-index');
                         var type = selType.val();
                         exportTypeQuery(index, type, routing);
                     });
 
-                    var timer = setInterval(function() {
+                    var timer = setInterval(function () {
                         if (exportTotalResult.length === selTypeChecked.length) {
                             // console.log(exportTotalResult);
                             clearInterval(timer);
@@ -863,7 +865,7 @@
                             outContent += '// --------------------------------------------------------\n';
                             outContent += '\n\n';
                             // data
-                            exportTotalResult.forEach(function(typeData) {
+                            exportTotalResult.forEach(function (typeData) {
                                 outContent += '// --------------------------------------------------------\n';
                                 outContent += '// ---------- index:' + typeData.index + '\n// ---------- type: ' + typeData.type + '\n';
                                 outContent += 'global.' + typeData.type + ' = \'';
@@ -921,25 +923,25 @@
                 $.ajax({
                     type: "GET",
                     url: url,
-                    success: function(data) {
+                    success: function (data) {
                         if (typeof data.metadata !== 'object') {
                             if (--indices >= -3) setTimeout(getState, 250);
                             else console.error('getState: try 3 times without prefered result.');
                             return;
                         }
-                        console.log(data);
+                        // console.log(data);
                         indices = {};
                         var data_indices = data.metadata.indices;
-                        Object.keys(data_indices).forEach(function(index) {
+                        Object.keys(data_indices).forEach(function (index) {
                             var index_data = data_indices[index];
                             var index_mappings = index_data.mappings;
 
                             indices[index] = Object.keys(index_mappings);
                         });
-                        console.log(indices);
+                        console.log('indices', indices);
                         setAllIndex();
                     },
-                    error: function(err) {
+                    error: function (err) {
                         console.error('getState: error.');
                         console.error(err);
                     }
@@ -986,7 +988,9 @@
             function setAllIndex() {
                 var indexOptions = [];
                 var firstIndex = '';
-                Object.keys(indices).forEach(function(index) {
+                var t = Object.keys(indices)
+                t.sort();
+                t.forEach(function (index) {
                     if (!firstIndex) {
                         firstIndex = index;
                     }
@@ -1017,7 +1021,8 @@
             function setTypes(index) {
                 var types = indices[index];
                 $("._type").html(" ");
-                types.forEach(function(type) {
+                types.sort();
+                types.forEach(function (type) {
                     $("._type").append("<option value='" + type + "'>" + type + "</option>");
                 });
             }
@@ -1061,11 +1066,11 @@
                     type: "POST",
                     url: deleteUrl,
                     data: bulkBody,
-                    success: function(result) {
+                    success: function (result) {
                         callback(null);
                         // msgBulkDeleteResult(format(JSON.stringify(result), false));
                     },
-                    error: function(err) {
+                    error: function (err) {
                         callback(err, null);
                         // msgBulkDeleteResult(format(JSON.stringify(result), false));
                     }
@@ -1094,10 +1099,10 @@
                     type: "POST",
                     url: deleteUrl,
                     data: bulkBody,
-                    success: function(result) {
+                    success: function (result) {
                         callback(null, result.items.length);
                     },
-                    error: function(err) {
+                    error: function (err) {
                         callback(err, null);
                     }
                 });
@@ -1140,7 +1145,7 @@
 
 
             // 格式化json
-            function format(txt, compress /*是否为压缩模式*/ ) { /* 格式化JSON源码(对象转换为JSON文本) */
+            function format(txt, compress /*是否为压缩模式*/) { /* 格式化JSON源码(对象转换为JSON文本) */
                 var indentChar = '    ';
                 if (/^\s*$/.test(txt)) {
                     alert('数据为空,无法格式化! ');
@@ -1159,7 +1164,7 @@
                     nodeCount = 0,
                     maxDepth = 0;
 
-                var notify = function(name, value, isLast, indent /*缩进*/ , formObj) {
+                var notify = function (name, value, isLast, indent /*缩进*/, formObj) {
                     nodeCount++; /*节点计数*/
                     for (var i = 0, tab = ''; i < indent; i++) tab += indentChar; /* 缩进HTML */
                     tab = compress ? '' : tab; /*压缩模式忽略缩进*/
